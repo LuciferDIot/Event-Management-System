@@ -7,8 +7,14 @@ export interface MongooseCache {
 }
 
 // ====== MONGOOSE MODELS
+export enum UserRole {
+  User = "User",
+  Admin = "Admin",
+}
+
 export interface IUser extends Document {
   _id: string;
+  role: UserRole;
   email: string;
   username: string;
   firstName: string;
@@ -43,7 +49,7 @@ export interface IUserEvent extends Document {
   _id: string;
   user: IUser; // Reference to User ID
   event: IEvent; // Reference to Event ID
-  status?: "Pending" | "Completed" | "Overdue"; // Optional field
+  status?: UserEventStatus; // Optional field
   note?: string; // Optional field
 }
 
@@ -86,11 +92,30 @@ export interface UserData {
 }
 
 // ====== USER-EVENT PARAMS
-export interface UserEventData {
+export enum UserEventStatus {
+  Pending = "Pending",
+  Completed = "Completed",
+  Overdue = "Overdue",
+}
+
+export interface EventDue {
   userId: string; // Reference to the user
   eventId: string; // Reference to the event
-  status?: "Pending" | "Completed" | "Overdue"; // Optional status
+  status?: UserEventStatus; // Optional status
   note?: string; // Optional note
+}
+
+// ====== RESPONSE HANDLING
+export enum ResponseStatus {
+  Success = "success",
+  Error = "error",
+}
+
+export interface IResponse<T> {
+  status: ResponseStatus;
+  message: string;
+  code?: number;
+  field?: string | T;
 }
 
 // ====== URL QUERY PARAMS

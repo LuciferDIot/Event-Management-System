@@ -17,8 +17,7 @@ export const eventSchema = z.object({
   url: z.string().url("Invalid URL format").optional(),
   slots: z.number().min(1, "Slots must be at least 1").default(100),
   category: z.object({
-    _id: z.string(),
-    name: z.string(),
+    name: z.string(), // Only the name is required for event creation
   }),
   organizer: z.object({
     _id: z.string(),

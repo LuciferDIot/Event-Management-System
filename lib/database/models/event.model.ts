@@ -1,5 +1,5 @@
 import { IEvent } from "@/types";
-import { Schema, model, models } from "mongoose";
+import { Model, Schema, model, models } from "mongoose";
 
 const EventSchema = new Schema<IEvent>({
   title: { type: String, required: true },
@@ -17,6 +17,6 @@ const EventSchema = new Schema<IEvent>({
   organizer: { type: Schema.Types.ObjectId, ref: "User" },
 });
 
-const Event = models.Event || model("Event", EventSchema);
+const Event: Model<IEvent> = models.Event || model("Event", EventSchema);
 
 export default Event;

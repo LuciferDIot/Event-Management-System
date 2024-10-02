@@ -1,8 +1,9 @@
-import { IUser } from "@/types";
+import { IUser, UserRole } from "@/types";
 import bcrypt from "bcrypt";
-import { Schema, model, models } from "mongoose";
+import { Model, Schema, model, models } from "mongoose";
 
 const UserSchema = new Schema<IUser>({
+  role: { type: String, default: UserRole.User },
   email: { type: String, required: true, unique: true, match: /.+\@.+\..+/ },
   username: { type: String, required: true, unique: true },
   firstName: { type: String, required: true },
@@ -19,6 +20,6 @@ UserSchema.pre("save", async function (next) {
   next();
 });
 
-const User = models.User || model("User", UserSchema);
+const User: Model<IUser> = models.User || model("User", UserSchema);
 
 export default User;

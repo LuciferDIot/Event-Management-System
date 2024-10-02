@@ -1,5 +1,5 @@
 import { IUserEvent } from "@/types";
-import { Schema, model, models } from "mongoose";
+import { Model, Schema, model, models } from "mongoose";
 
 const UserEventSchema = new Schema<IUserEvent>(
   {
@@ -15,6 +15,7 @@ const UserEventSchema = new Schema<IUserEvent>(
   { timestamps: true }
 ); // Automatically manages createdAt and updatedAt fields
 
-const UserEvent = models.UserEvent || model("UserEvent", UserEventSchema);
+const UserEvent: Model<IUserEvent> =
+  models.UserEvent || model("UserEvent", UserEventSchema);
 
 export default UserEvent;

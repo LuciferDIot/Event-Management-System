@@ -1,32 +1,53 @@
 "use server";
 
-import { CreateCategoryParams } from "@/types";
-import { handleError } from "../utils";
+import { categorySchema } from "@/schema/category.schema";
+import {
+  CreateCategoryParams,
+  ICategory,
+  IResponse,
+  ResponseStatus,
+} from "@/types";
 import { connectToDatabase } from "../database";
 import Category from "../database/models/category.model";
+import { handleError } from "../utils";
 
 export const createCategory = async ({
   categoryName,
-}: CreateCategoryParams) => {
+}: CreateCategoryParams): Promise<IResponse<ICategory | string>> => {
   try {
+    // Validate the input using Zod
+    const parsedData = categorySchema.parse({ name: categoryName });
+
     await connectToDatabase();
 
-    const newCategory = await Category.create({ name: categoryName });
+    const newCategory: ICategory = await Category.create(parsedData);
 
-    return JSON.parse(JSON.stringify(newCategory));
+    return {
+      status: ResponseStatus.Success,
+      message: "Category created successfully",
+      code: 200,
+      field: newCategory,
+    };
   } catch (error) {
-    handleError(error);
+    return handleError(error);
   }
 };
 
-export const getAllCategories = async () => {
+export const getAllCategories = async (): Promise<
+  IResponse<ICategory[] | string>
+> => {
   try {
     await connectToDatabase();
 
-    const categories = await Category.find();
+    const categories: ICategory[] = await Category.find();
 
-    return JSON.parse(JSON.stringify(categories));
+    return {
+      status: ResponseStatus.Success,
+      message: "Categories fetched successfully",
+      code: 200,
+      field: categories,
+    };
   } catch (error) {
-    handleError(error);
+    return handleError(error);
   }
 };

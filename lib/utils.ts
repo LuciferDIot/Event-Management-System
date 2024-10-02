@@ -1,7 +1,13 @@
-import { UrlQueryParams, RemoveUrlQueryParams } from "@/types";
+import {
+  IResponse,
+  RemoveUrlQueryParams,
+  ResponseStatus,
+  UrlQueryParams,
+} from "@/types";
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { Error } from "mongoose";
 import qs from "query-string";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -97,7 +103,39 @@ export function removeKeysFromQuery({
   );
 }
 
-export const handleError = (error: unknown) => {
-  console.error(error);
-  throw new Error(typeof error === "string" ? error : JSON.stringify(error));
+export const handleError = (error: unknown): IResponse<string> => {
+  console.error(error); // Log the actual error for debugging purposes
+
+  // Handle Mongoose validation and MongoDB errors
+  if (error instanceof Error.ValidationError) {
+    return {
+      status: ResponseStatus.Error,
+      message: "Validation error. Please check the provided data.",
+      field: Object.keys(error.errors)[0],
+    };
+  }
+
+  if (error instanceof Error) {
+    // MongoDB duplicate key error
+    interface MongoError extends Error {
+      code: number;
+      keyValue: Record<string, unknown>;
+    }
+
+    if ((error as MongoError).code === 11000) {
+      const duplicateField = Object.keys((error as MongoError).keyValue)[0];
+      return {
+        status: ResponseStatus.Error,
+        message: `${duplicateField} already exists. Please use a different one.`,
+        field: duplicateField,
+        code: 11000,
+      };
+    }
+  }
+
+  // General error
+  return {
+    status: ResponseStatus.Error,
+    message: "An unexpected error occurred. Please try again.",
+  };
 };
