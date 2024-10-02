@@ -3,7 +3,6 @@ import bcrypt from "bcrypt";
 import { Schema, model, models } from "mongoose";
 
 const UserSchema = new Schema<IUser>({
-  _id: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true, match: /.+\@.+\..+/ },
   username: { type: String, required: true, unique: true },
   firstName: { type: String, required: true },

@@ -76,7 +76,7 @@ export interface EventData {
 
 // ====== USER PARAMS
 export interface UserData {
-  id: string; // User ID
+  _id?: string; // User ID
   email: string; // User email
   username: string; // User's username
   firstName: string; // User's first name
