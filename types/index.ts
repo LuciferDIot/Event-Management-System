@@ -115,7 +115,17 @@ export interface IResponse<T> {
   status: ResponseStatus;
   message: string;
   code?: number;
-  field?: string | T;
+  field?: T;
+  totalEvents?: number;
+  totalPages?: number;
+  currentPage?: number;
+}
+
+// ====== JWT TOKEN
+export interface DecodedToken {
+  userId: string;
+  email: string;
+  role: UserRole[];
 }
 
 // ====== URL QUERY PARAMS

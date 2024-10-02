@@ -6,6 +6,7 @@ import {
   ICategory,
   IResponse,
   ResponseStatus,
+  UserRole,
 } from "@/types";
 import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
@@ -19,7 +20,7 @@ export const createCategory = async (
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<ICategory | string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }

@@ -7,6 +7,7 @@ import {
   IEvent,
   IResponse,
   ResponseStatus,
+  UserRole,
 } from "@/types"; // Ensure the path is correct
 import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
@@ -21,7 +22,7 @@ export const createEvent = async (
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<IEvent | string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
@@ -62,34 +63,6 @@ export const createEvent = async (
   }
 };
 
-// Get events based on user ID and status (protected)
-export const getUserEvents = async (
-  userId: string,
-  token: string // Expect the JWT token to be passed
-): Promise<IResponse<IEvent[] | string | jwt.JwtPayload>> => {
-  // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
-  if (tokenResponse.status === ResponseStatus.Error) {
-    return tokenResponse; // Return unauthorized if token is invalid
-  }
-
-  try {
-    await connectToDatabase();
-    const events: IEvent[] = await Event.find({
-      organizer: userId,
-      status: { $in: ["Pending", "Overdue"] },
-    });
-    return {
-      status: ResponseStatus.Success,
-      message: "Events fetched successfully",
-      code: 200,
-      field: events,
-    };
-  } catch (error) {
-    return handleError(error);
-  }
-};
-
 // Update event status (protected)
 export const updateEventStatus = async (
   eventId: string,
@@ -97,7 +70,7 @@ export const updateEventStatus = async (
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
@@ -110,6 +83,86 @@ export const updateEventStatus = async (
       message: "Event status updated successfully",
       code: 200,
       field: "Success",
+    };
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+// Get all events (not protected) with pagination
+export const getAllEvents = async (
+  page: number = 1, // Default to the first page
+  limit: number = 10 // Default limit for number of events per page
+): Promise<IResponse<IEvent[] | string>> => {
+  try {
+    await connectToDatabase();
+
+    // Calculate the number of documents to skip
+    const skip = (page - 1) * limit;
+
+    // Fetch the paginated events
+    const events: IEvent[] = await Event.find({}).skip(skip).limit(limit);
+
+    // Get total count of events for calculating total pages
+    const totalEvents = await Event.countDocuments();
+
+    return {
+      status: ResponseStatus.Success,
+      message: "All events fetched successfully",
+      code: 200,
+      field: events,
+      totalEvents: totalEvents,
+      totalPages: Math.ceil(totalEvents / limit),
+      currentPage: page,
+    };
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+// Get events based on user ID and status (protected) with pagination
+export const getUserEvents = async (
+  userId: string,
+  token: string, // Expect the JWT token to be passed
+  page: number = 1, // Default to the first page
+  limit: number = 10 // Default limit for number of events per page
+): Promise<IResponse<IEvent[] | string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token, [
+    UserRole.Admin,
+    UserRole.User,
+  ]);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
+  try {
+    await connectToDatabase();
+
+    // Calculate the number of documents to skip
+    const skip = (page - 1) * limit;
+
+    const events: IEvent[] = await Event.find({
+      organizer: userId,
+      status: { $in: ["Pending", "Overdue"] },
+    })
+      .skip(skip)
+      .limit(limit);
+
+    // Get total count of events for calculating total pages
+    const totalEvents = await Event.countDocuments({
+      organizer: userId,
+      status: { $in: ["Pending", "Overdue"] },
+    });
+
+    return {
+      status: ResponseStatus.Success,
+      message: "Events fetched successfully",
+      code: 200,
+      field: events,
+      totalEvents: totalEvents,
+      totalPages: Math.ceil(totalEvents / limit),
+      currentPage: page,
     };
   } catch (error) {
     return handleError(error);

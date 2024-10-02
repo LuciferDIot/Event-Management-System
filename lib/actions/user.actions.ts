@@ -1,13 +1,54 @@
 "use server";
 
 import { userSchema } from "@/schema/user.schema";
-import { IResponse, IUser, ResponseStatus, UserData } from "@/types";
+import { IResponse, IUser, ResponseStatus, UserData, UserRole } from "@/types";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
 import User from "../database/models/user.model";
-import { verifyToken } from "../jwt";
+import { generateToken, verifyToken } from "../jwt";
 import { handleError } from "../utils";
+
+// Log in user and return JWT token
+export const logInUser = async (
+  emailOrUsername: string,
+  password: string
+): Promise<IResponse<string>> => {
+  try {
+    await connectToDatabase();
+
+    // Find user by email or username
+    const user = await User.findOne({
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+    });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      // Generate a JWT token
+      const token = generateToken({
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+        username: user.username,
+      });
+
+      return {
+        status: ResponseStatus.Success,
+        message: "Login successful",
+        code: 200,
+        field: token, // Returning token
+      };
+    }
+
+    return {
+      status: ResponseStatus.Error,
+      message: "Invalid credentials",
+      code: 401,
+      field: "Invalid credentials",
+    };
+  } catch (error) {
+    return handleError(error);
+  }
+};
 
 // Create a new user account (protected)
 export const createUser = async (
@@ -15,7 +56,7 @@ export const createUser = async (
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<IUser | string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse;
   }
@@ -49,7 +90,7 @@ export const removeUser = async (
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
@@ -75,7 +116,7 @@ export const deactivateUser = async (
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
@@ -95,40 +136,38 @@ export const deactivateUser = async (
   }
 };
 
-// Log in user and return JWT token
-export const logInUser = async (
-  emailOrUsername: string,
-  password: string
-): Promise<IResponse<string>> => {
+// Get all users (protected) with pagination
+export const getAllUsers = async (
+  page: number = 1, // Default to the first page
+  limit: number = 10, // Default limit for number of users per page
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<IUser[] | string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
   try {
     await connectToDatabase();
 
-    // Find user by email or username
-    const user = await User.findOne({
-      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
-    });
+    // Calculate the number of documents to skip
+    const skip = (page - 1) * limit;
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // Generate a JWT token
-      const token = jwt.sign(
-        { userId: user._id, email: user.email },
-        process.env.JWT_SECRET as string,
-        { expiresIn: "1h" }
-      );
+    // Fetch the paginated users
+    const users: IUser[] = await User.find({}).skip(skip).limit(limit);
 
-      return {
-        status: ResponseStatus.Success,
-        message: "Login successful",
-        code: 200,
-        field: token, // Returning token
-      };
-    }
+    // Get total count of users for calculating total pages
+    const totalUsers = await User.countDocuments();
 
     return {
-      status: ResponseStatus.Error,
-      message: "Invalid credentials",
-      code: 401,
-      field: "Invalid credentials",
+      status: ResponseStatus.Success,
+      message: "All users fetched successfully",
+      code: 200,
+      field: users,
+      totalEvents: totalUsers, // You can rename this field if needed, for clarity
+      totalPages: Math.ceil(totalUsers / limit),
+      currentPage: page,
     };
   } catch (error) {
     return handleError(error);

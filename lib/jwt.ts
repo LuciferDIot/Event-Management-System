@@ -1,35 +1,66 @@
 "use server";
-import { IResponse, ResponseStatus } from "@/types";
+import { DecodedToken, IResponse, ResponseStatus, UserRole } from "@/types";
 import jwt from "jsonwebtoken";
 
-// Utility to verify JWT
-export const verifyToken = async (
-  token: string
-): Promise<IResponse<string | jwt.JwtPayload>> => {
-  if (!token) {
-    return {
-      status: ResponseStatus.Error,
-      message: "No token provided",
-      code: 401,
-      field: "Unauthorized",
-    };
-  }
+// Utility function to check user roles
+export const hasRole = (userRoles: string[], allowedRoles: string[]) => {
+  return allowedRoles.some((role) => userRoles.includes(role));
+};
 
+// Utility to generate JWT
+export const generateToken = (payload: jwt.JwtPayload) => {
+  return jwt.sign(payload, process.env.JWT_SECRET as string, {
+    expiresIn: "1d",
+  });
+};
+
+// Common method to verify token and check user roles
+export const verifyToken = async (
+  token: string,
+  allowedRoles: UserRole[]
+): Promise<IResponse<string | DecodedToken>> => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    // Verify the token
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as DecodedToken;
+
+    // Check if user has the required role
+    const userRoles = decoded.role;
+    const hasAccess = userRoles.some((role) => allowedRoles.includes(role));
+
+    if (!hasAccess) {
+      return {
+        status: ResponseStatus.Error,
+        message:
+          "Forbidden: You do not have permission to perform this action.",
+        code: 403,
+        field: "Forbidden",
+      };
+    }
+
     return {
       status: ResponseStatus.Success,
-      message: "Token verified",
+      message: "Token is valid and role is authorized.",
       code: 200,
-      field: decoded,
+      field: decoded, // Return the decoded token
     };
   } catch (error) {
-    return {
-      status: ResponseStatus.Error,
-      message:
-        error instanceof Error ? error.message : "Invalid or expired token",
-      code: 401,
-      field: "Unauthorized",
-    };
+    if (error instanceof Error) {
+      return {
+        status: ResponseStatus.Error,
+        message: error.message,
+        code: 401,
+        field: "Unauthorized",
+      };
+    } else {
+      return {
+        status: ResponseStatus.Error,
+        message: "Invalid token",
+        code: 401,
+        field: "Unauthorized",
+      };
+    }
   }
 };

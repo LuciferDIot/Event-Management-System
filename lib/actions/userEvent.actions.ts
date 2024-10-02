@@ -6,6 +6,7 @@ import {
   IUserEvent,
   ResponseStatus,
   UserEventStatus,
+  UserRole,
 } from "@/types";
 import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
@@ -20,7 +21,7 @@ export const createUserEvent = async (
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<IUserEvent | string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
@@ -43,26 +44,42 @@ export const createUserEvent = async (
   }
 };
 
-// Get user events (protected)
+// Get user events (protected) with pagination
 export const getUserEvents = async (
   userId: string,
+  page: number = 1, // Default to the first page
+  limit: number = 10, // Default limit for number of user events per page
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
+  const tokenResponse = await verifyToken(token, [UserRole.User]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
 
   try {
     await connectToDatabase();
-    const userEvents = await UserEvent.find({ user: userId }).populate("event");
+
+    // Calculate the number of documents to skip
+    const skip = (page - 1) * limit;
+
+    // Fetch the paginated user events
+    const userEvents: IUserEvent[] = await UserEvent.find({ user: userId })
+      .skip(skip)
+      .limit(limit)
+      .populate("event");
+
+    // Get total count of user events for calculating total pages
+    const totalUserEvents = await UserEvent.countDocuments({ user: userId });
 
     return {
       status: ResponseStatus.Success,
       message: "User events fetched successfully",
       code: 200,
       field: userEvents,
+      totalEvents: totalUserEvents,
+      totalPages: Math.ceil(totalUserEvents / limit),
+      currentPage: page,
     };
   } catch (error) {
     return handleError(error);
@@ -76,7 +93,7 @@ export const updateUserEventStatus = async (
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
-  const tokenResponse = await verifyToken(token);
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
