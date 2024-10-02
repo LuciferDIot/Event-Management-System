@@ -75,4 +75,10 @@ body {
   body {
     @apply text-foreground;
   }
+
+  .flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
