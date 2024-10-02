@@ -20,7 +20,19 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   password: string;
-  isActive?: boolean; // Optional field
+  isActive?: boolean;
+}
+
+// ====== USER PARAMS
+export interface UserData {
+  _id?: string; // User ID
+  role: UserRole;
+  email: string; // User email
+  username: string; // User's username
+  firstName: string; // User's first name
+  lastName: string; // User's last name
+  password: string; // User's password
+  isActive?: boolean; // Optional, defaults to true
 }
 
 export interface ICategory extends Document {
@@ -80,17 +92,6 @@ export interface EventData {
   };
 }
 
-// ====== USER PARAMS
-export interface UserData {
-  _id?: string; // User ID
-  email: string; // User email
-  username: string; // User's username
-  firstName: string; // User's first name
-  lastName: string; // User's last name
-  password: string; // User's password
-  isActive?: boolean; // Optional, defaults to true
-}
-
 // ====== USER-EVENT PARAMS
 export enum UserEventStatus {
   Pending = "Pending",
@@ -119,6 +120,12 @@ export interface IResponse<T> {
   totalEvents?: number;
   totalPages?: number;
   currentPage?: number;
+}
+
+// ====== LOGIN RESPONSE
+export interface ILoginResponse {
+  token: string;
+  user: IUser;
 }
 
 // ====== JWT TOKEN

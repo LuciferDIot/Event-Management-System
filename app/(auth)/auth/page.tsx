@@ -25,7 +25,7 @@ import { loginSchema } from "@/schema/login.schema";
 import { ResponseStatus } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
@@ -56,7 +56,16 @@ export default function ProfileForm() {
 
       if (response.status === ResponseStatus.Success) {
         if (response.field) {
-          localStorage.setItem("token", response.field);
+          if (
+            typeof response.field !== "string" &&
+            response.field.token &&
+            response.field.user
+          ) {
+            localStorage.setItem("token", response.field.token);
+            localStorage.setItem("user", JSON.stringify(response.field.user));
+          } else {
+            throw new Error("Token is undefined.");
+          }
         } else {
           throw new Error("Token is undefined.");
         }

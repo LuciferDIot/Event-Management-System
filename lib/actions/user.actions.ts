@@ -1,7 +1,14 @@
 "use server";
 
 import { userSchema } from "@/schema/user.schema";
-import { IResponse, IUser, ResponseStatus, UserData, UserRole } from "@/types";
+import {
+  ILoginResponse,
+  IResponse,
+  IUser,
+  ResponseStatus,
+  UserData,
+  UserRole,
+} from "@/types";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
@@ -9,43 +16,51 @@ import User from "../database/models/user.model";
 import { generateToken, verifyToken } from "../jwt";
 import { handleError } from "../utils";
 
-// Log in user and return JWT token
 export const logInUser = async (
   emailOrUsername: string,
   password: string
-): Promise<IResponse<string>> => {
+): Promise<IResponse<ILoginResponse | string>> => {
   try {
     await connectToDatabase();
 
-    // Find user by email or username
     const user = await User.findOne({
       $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
     });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // Generate a JWT token
-      const token = generateToken({
-        userId: user._id,
-        email: user.email,
-        role: user.role,
-        username: user.username,
-      });
+    if (user) {
+      if (await bcrypt.compare(password.trim(), user.password)) {
+        const token = generateToken({
+          userId: user._id,
+          email: user.email,
+          role: user.role,
+          username: user.username,
+        });
 
+        return {
+          status: ResponseStatus.Success,
+          message: "Login successful",
+          code: 200,
+          field: {
+            token,
+            user,
+          },
+        };
+      }
       return {
-        status: ResponseStatus.Success,
-        message: "Login successful",
-        code: 200,
-        field: token, // Returning token
+        status: ResponseStatus.Error,
+        message: "Invalid Password",
+        code: 401,
+        field: "Invalid Password",
       };
-    }
-
-    return {
-      status: ResponseStatus.Error,
-      message: "Invalid credentials",
-      code: 401,
-      field: "Invalid credentials",
-    };
+    } else
+      return {
+        status: ResponseStatus.Error,
+        message: "Invalid Email or Username",
+        code: 401,
+        field: "Invalid Email or Username",
+      };
   } catch (error) {
+    console.error("Login error:", error);
     return handleError(error);
   }
 };
@@ -67,10 +82,8 @@ export const createUser = async (
 
     await connectToDatabase();
 
-    const hashedPassword = await bcrypt.hash(parsedData.password, 10);
     const newUser = await User.create({
       ...parsedData,
-      password: hashedPassword,
     });
 
     return {
