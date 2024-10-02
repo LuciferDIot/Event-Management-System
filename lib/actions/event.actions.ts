@@ -8,15 +8,24 @@ import {
   IResponse,
   ResponseStatus,
 } from "@/types"; // Ensure the path is correct
+import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
 import Category from "../database/models/category.model";
 import Event from "../database/models/event.model";
+import { verifyToken } from "../jwt";
 import { handleError } from "../utils";
 
-// Create a new event
+// Create a new event (protected)
 export const createEvent = async (
-  eventData: EventData
-): Promise<IResponse<IEvent | string>> => {
+  eventData: EventData,
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<IEvent | string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
   try {
     // Validate the input using Zod
     const parsedData = eventSchema.parse(eventData);
@@ -53,10 +62,17 @@ export const createEvent = async (
   }
 };
 
-// Get events based on user ID and status
+// Get events based on user ID and status (protected)
 export const getUserEvents = async (
-  userId: string
-): Promise<IResponse<IEvent[] | string>> => {
+  userId: string,
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<IEvent[] | string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
   try {
     await connectToDatabase();
     const events: IEvent[] = await Event.find({
@@ -74,11 +90,18 @@ export const getUserEvents = async (
   }
 };
 
-// Update event status
+// Update event status (protected)
 export const updateEventStatus = async (
   eventId: string,
-  newStatus: EventDue
-): Promise<IResponse<string>> => {
+  newStatus: EventDue,
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
   try {
     await connectToDatabase();
     await Event.findByIdAndUpdate(eventId, { status: newStatus });

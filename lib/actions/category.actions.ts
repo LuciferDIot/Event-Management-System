@@ -7,13 +7,23 @@ import {
   IResponse,
   ResponseStatus,
 } from "@/types";
+import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
 import Category from "../database/models/category.model";
+import { verifyToken } from "../jwt";
 import { handleError } from "../utils";
 
-export const createCategory = async ({
-  categoryName,
-}: CreateCategoryParams): Promise<IResponse<ICategory | string>> => {
+// Protected route for creating category
+export const createCategory = async (
+  { categoryName }: CreateCategoryParams,
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<ICategory | string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
   try {
     // Validate the input using Zod
     const parsedData = categorySchema.parse({ name: categoryName });
@@ -33,6 +43,7 @@ export const createCategory = async ({
   }
 };
 
+// Public route for getting all categories
 export const getAllCategories = async (): Promise<
   IResponse<ICategory[] | string>
 > => {

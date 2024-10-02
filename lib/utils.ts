@@ -106,7 +106,7 @@ export function removeKeysFromQuery({
 export const handleError = (error: unknown): IResponse<string> => {
   console.error(error); // Log the actual error for debugging purposes
 
-  // Handle Mongoose validation and MongoDB errors
+  // Handle Mongoose validation errors (e.g., schema validation errors)
   if (error instanceof Error.ValidationError) {
     return {
       status: ResponseStatus.Error,
@@ -131,9 +131,51 @@ export const handleError = (error: unknown): IResponse<string> => {
         code: 11000,
       };
     }
+
+    // Handle network-related errors (e.g., Axios or Fetch errors)
+    if (
+      error.message.includes("Network Error") ||
+      error.message.includes("ECONNREFUSED")
+    ) {
+      return {
+        status: ResponseStatus.Error,
+        message: "Network error. Please check your connection and try again.",
+      };
+    }
+
+    // Handle authorization or authentication errors
+    if (
+      error.message.includes("Unauthorized") ||
+      error.message.includes("403")
+    ) {
+      return {
+        status: ResponseStatus.Error,
+        message:
+          "Authorization error. You do not have permission to perform this action.",
+      };
+    }
+
+    // Handle not found errors (e.g., 404)
+    if (error.message.includes("Not Found") || error.message.includes("404")) {
+      return {
+        status: ResponseStatus.Error,
+        message: "The requested resource could not be found.",
+      };
+    }
+
+    // Handle bad request errors (e.g., 400)
+    if (
+      error.message.includes("Bad Request") ||
+      error.message.includes("400")
+    ) {
+      return {
+        status: ResponseStatus.Error,
+        message: "Bad request. Please verify your input and try again.",
+      };
+    }
   }
 
-  // General error
+  // Handle general unexpected errors
   return {
     status: ResponseStatus.Error,
     message: "An unexpected error occurred. Please try again.",

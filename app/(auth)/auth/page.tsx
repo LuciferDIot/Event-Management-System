@@ -1,9 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,11 +19,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { logInUser } from "@/lib/actions/user.actions";
+import { handleError } from "@/lib/utils";
 import { loginSchema } from "@/schema/login.schema";
+import { ResponseStatus } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { z } from "zod";
 
 export default function ProfileForm() {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -42,15 +47,34 @@ export default function ProfileForm() {
     formState: { errors },
   } = form;
 
-  // Define a submit handler
-  function onSubmit(values: z.infer<typeof loginSchema>) {
-    // Handle the form submission
-    console.log(values);
-  }
+  // Handle the form submission
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    const loginField = values.isEmail ? values.email : values.username;
+    try {
+      if (!loginField) throw new Error("Please enter your email or username.");
+      const response = await logInUser(loginField, values.password);
 
-  useEffect(() => {
-    console.log(form.formState.errors);
-  }, [form.formState.errors]);
+      if (response.status === ResponseStatus.Success) {
+        if (response.field) {
+          localStorage.setItem("token", response.field);
+        } else {
+          throw new Error("Token is undefined.");
+        }
+        toast.success(response.message);
+        router.push("/");
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      const errorRecreate = handleError(error);
+
+      if (errorRecreate.message) {
+        toast.error(errorRecreate.message);
+      } else {
+        toast.error("An error occurred during login.");
+      }
+    }
+  }
 
   return (
     <Form {...form}>

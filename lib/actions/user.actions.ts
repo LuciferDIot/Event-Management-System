@@ -3,14 +3,23 @@
 import { userSchema } from "@/schema/user.schema";
 import { IResponse, IUser, ResponseStatus, UserData } from "@/types";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
 import User from "../database/models/user.model";
+import { verifyToken } from "../jwt";
 import { handleError } from "../utils";
 
-// Create a new user account
+// Create a new user account (protected)
 export const createUser = async (
-  userData: UserData
-): Promise<IResponse<IUser | string>> => {
+  userData: UserData,
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<IUser | string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse;
+  }
+
   try {
     // Validate the input using Zod
     const parsedData = userSchema.parse(userData);
@@ -34,10 +43,17 @@ export const createUser = async (
   }
 };
 
-// Remove user account
+// Remove user account (protected)
 export const removeUser = async (
-  userId: string
-): Promise<IResponse<string>> => {
+  userId: string,
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
   try {
     await connectToDatabase();
     await User.findByIdAndDelete(userId);
@@ -53,10 +69,17 @@ export const removeUser = async (
   }
 };
 
-// Deactivate user account
+// Deactivate user account (protected)
 export const deactivateUser = async (
-  userId: string
-): Promise<IResponse<string>> => {
+  userId: string,
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
   try {
     await connectToDatabase();
     await User.findByIdAndUpdate(userId, { isActive: false });
@@ -72,21 +95,32 @@ export const deactivateUser = async (
   }
 };
 
-// Log in user
+// Log in user and return JWT token
 export const logInUser = async (
-  email: string,
+  emailOrUsername: string,
   password: string
-): Promise<IResponse<IUser | string>> => {
+): Promise<IResponse<string>> => {
   try {
     await connectToDatabase();
-    const user: IUser | null = await User.findOne({ email });
+
+    // Find user by email or username
+    const user = await User.findOne({
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+    });
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      // Generate a JWT token
+      const token = jwt.sign(
+        { userId: user._id, email: user.email },
+        process.env.JWT_SECRET as string,
+        { expiresIn: "1h" }
+      );
+
       return {
         status: ResponseStatus.Success,
         message: "Login successful",
         code: 200,
-        field: user, // You may return a token here instead
+        field: token, // Returning token
       };
     }
 
