@@ -12,6 +12,11 @@ export enum UserRole {
   Admin = "Admin",
 }
 
+export enum UserStatus {
+  ACTIVE = "Active",
+  INACTIVE = "Inactive",
+}
+
 export interface IUser extends Document {
   _id: string;
   role: UserRole;
@@ -21,6 +26,7 @@ export interface IUser extends Document {
   lastName: string;
   password: string;
   isActive: boolean;
+  token?: string;
 }
 
 // ====== USER PARAMS
@@ -151,3 +157,5 @@ export type SearchParamProps = {
   params: { id: string };
   searchParams: { [key: string]: string | string[] | undefined };
 };
+
+// ====== TABLE TYPES

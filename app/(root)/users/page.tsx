@@ -25,7 +25,14 @@ function Users() {
         if (response.field) {
           if (typeof response.field !== "string") {
             if (Array.isArray(response.field)) {
-              setUsers(response.field);
+              const users: IUser[] = response.field.map(
+                (user: IUser) =>
+                  ({
+                    ...user,
+                    token: token,
+                  } as IUser)
+              );
+              setUsers(users);
             } else {
               throw new Error("Invalid response field type.");
             }
@@ -58,7 +65,11 @@ function Users() {
           <p>{errorMessage}</p>
         </div>
       )}
-      <DataTable columns={userColumns} data={users} />
+      <DataTable
+        columns={userColumns}
+        data={users}
+        filterPlaceholder={"Search by email..."}
+      />
     </div>
   );
 }

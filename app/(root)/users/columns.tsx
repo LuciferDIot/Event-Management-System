@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { removeUser } from "@/lib/actions/user.actions";
 import { IUser } from "@/types";
 import {
   DropdownMenu,
@@ -24,26 +25,53 @@ export const userColumns: ColumnDef<IUser>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
       );
     },
   },
   {
     accessorKey: "username",
-    header: "UserName",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          UserName
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "firstName",
-    header: "First Name",
-  },
-  {
-    accessorKey: "lastName",
-    header: "Last Name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Full Name
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const isActive = row.original.isActive;
 
@@ -59,10 +87,12 @@ export const userColumns: ColumnDef<IUser>[] = [
     },
   },
   {
-    id: "actions",
+    accessorKey: "actions",
     header: "Actions",
     cell: ({ row }) => {
       const isActive = row.original.isActive;
+      const userId = row.original._id;
+      const adminToken = row.original.token;
 
       const handleIsActive = () => {
         if (isActive) {
@@ -71,6 +101,16 @@ export const userColumns: ColumnDef<IUser>[] = [
           row.original.isActive = true;
         }
       };
+
+      const handleDelete = async (id: string, token: string) => {
+        try {
+          const response = await removeUser(id, token);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      if (!userId || !adminToken) return null;
 
       return (
         <Dialog>
@@ -111,7 +151,7 @@ export const userColumns: ColumnDef<IUser>[] = [
               )}
               <DropdownMenuItem
                 className="p-[2%] cursor-pointer flex-center rounded-md bg-red-600 text-white mt-2"
-                onClick={() => navigator.clipboard.writeText(task.id)}
+                onClick={() => handleDelete(userId, adminToken)}
               >
                 <Trash className="mr-2 h-4 w-4" />
                 Remove
