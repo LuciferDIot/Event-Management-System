@@ -35,7 +35,9 @@ function Users() {
           button={{
             label: "Add user",
             onClick: () => {
-              setDialogContent(<CreateUserForm />);
+              setDialogContent(
+                <CreateUserForm setDialogContent={setDialogContent} />
+              );
             },
           }}
         />

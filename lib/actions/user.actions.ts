@@ -94,6 +94,7 @@ export const createUser = async (
     const newUser = await User.create({
       ...parsedData,
     });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = newUser.toObject();
 
     return {
@@ -182,7 +183,9 @@ export const getAllUsers = async (
       const skip = (page - 1) * limit;
 
       // Fetch the paginated users
-      const users = await User.find({ role: { $ne: UserRole.Admin } })
+      const users = await User.find({
+        // role: { $ne: UserRole.Admin }
+      })
         .lean()
         .skip(skip)
         .limit(limit)
@@ -202,7 +205,9 @@ export const getAllUsers = async (
       };
     } else {
       // Fetch all users without pagination
-      users = await User.find({ role: { $ne: UserRole.Admin } })
+      users = await User.find({
+        // role: { $ne: UserRole.Admin }
+      })
         .lean()
         .select("-password");
 

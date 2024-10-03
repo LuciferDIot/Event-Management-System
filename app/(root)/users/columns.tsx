@@ -6,7 +6,7 @@ import { Dialog } from "@/components/ui/dialog";
 import useFetchUsers from "@/hooks/useFetchUsers";
 import { removeUser, updateUser } from "@/lib/actions/user.actions";
 import { handleError } from "@/lib/utils";
-import { IUser, ResponseStatus } from "@/types";
+import { IUser, ResponseStatus, UserRole } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,20 +36,6 @@ export const userColumns: ColumnDef<IUser>[] = [
     },
   },
   {
-    accessorKey: "username",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          UserName
-          <ArrowUpDown className="ml-2 h-3 w-3" />
-        </Button>
-      );
-    },
-  },
-  {
     accessorKey: "firstName",
     header: ({ column }) => {
       return (
@@ -63,6 +49,50 @@ export const userColumns: ColumnDef<IUser>[] = [
       );
     },
     cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
+  },
+  {
+    accessorKey: "username",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          UserName
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+  },
+
+  {
+    accessorKey: "role",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const isAdmin = row.original.role === UserRole.Admin;
+
+      return (
+        <span
+          className={`px-2 py-1 rounded-md text-xs font-medium ${
+            isAdmin
+              ? "bg-blue-100 text-blue-800"
+              : "bg-orange-100 text-orange-800"
+          }`}
+        >
+          {isAdmin ? UserRole.Admin : UserRole.User}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "status",

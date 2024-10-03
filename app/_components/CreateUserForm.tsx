@@ -33,11 +33,16 @@ import { userSchema } from "@/schema/user.schema";
 import { ResponseStatus, UserRole } from "@/types"; // Assuming you have an enum for roles
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { Dispatch, ReactNode, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
-export default function CreateUserForm() {
+export default function CreateUserForm({
+  setDialogContent,
+}: {
+  setDialogContent: Dispatch<SetStateAction<ReactNode>>;
+}) {
   const router = useRouter();
   const { token } = useAuth();
   const { fetchUsers } = useFetchUsers();
@@ -68,6 +73,7 @@ export default function CreateUserForm() {
         toast.success("User created successfully");
         await fetchUsers();
         form.reset();
+        setDialogContent(null);
       } else {
         toast.error(response.message || "Failed to create user");
       }
