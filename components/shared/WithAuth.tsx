@@ -4,6 +4,7 @@ import { ROUTES } from "@/data";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { toast } from "react-toastify";
 
 const WithAuth = ({ children }: { children: React.ReactNode }) => {
   const { user, token, isLoggedIn, hasHydrated } = useAuth(); // Ensure hasHydrated is part of the return
@@ -15,7 +16,11 @@ const WithAuth = ({ children }: { children: React.ReactNode }) => {
       if (!isLoggedIn && !user && !token) {
         router.push(ROUTES.LOGIN);
       } else {
-        setIsLoading(false);
+        if (user?.isActive === false) {
+          toast.error(
+            "Your account is inactive. Please contact the administrator."
+          );
+        } else setIsLoading(false);
       }
     }
   }, [isLoggedIn, hasHydrated, router, user, token]);

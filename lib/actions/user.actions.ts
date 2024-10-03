@@ -27,7 +27,7 @@ export const logInUser = async (
       $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
     });
 
-    if (user) {
+    if (user && user.isActive) {
       if (await bcrypt.compare(password.trim(), user.password)) {
         const token = await generateToken({
           userId: user._id,
@@ -60,6 +60,13 @@ export const logInUser = async (
         message: "Invalid Password",
         code: 401,
         field: "Invalid Password",
+      };
+    } else if (user && !user.isActive) {
+      return {
+        status: ResponseStatus.Error,
+        message: "User is deactivated. Please contact the admin",
+        code: 401,
+        field: "User is deactivated",
       };
     } else
       return {
