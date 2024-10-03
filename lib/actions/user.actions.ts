@@ -42,10 +42,17 @@ export const logInUser = async (
           status: ResponseStatus.Success,
           message: "Login successful",
           code: 200,
-          field: {
-            token,
-            user,
-          },
+          field: JSON.parse(
+            JSON.stringify({
+              token,
+              user: {
+                _id: user._id,
+                email: user.email,
+                username: user.username,
+                role: user.role,
+              },
+            })
+          ),
         };
       }
       return {
@@ -87,12 +94,13 @@ export const createUser = async (
     const newUser = await User.create({
       ...parsedData,
     });
+    const { password, ...userWithoutPassword } = newUser.toObject();
 
     return {
       status: ResponseStatus.Success,
       message: "User created successfully",
       code: 200,
-      field: newUser,
+      field: JSON.parse(JSON.stringify(userWithoutPassword)),
     };
   } catch (error) {
     return handleError(error);
@@ -174,7 +182,11 @@ export const getAllUsers = async (
       const skip = (page - 1) * limit;
 
       // Fetch the paginated users
-      users = await User.find({}).skip(skip).limit(limit);
+      const users = await User.find({ role: { $ne: UserRole.Admin } })
+        .lean()
+        .skip(skip)
+        .limit(limit)
+        .select("-password");
 
       // Get total count of users for calculating total pages
       totalUsers = await User.countDocuments();
@@ -183,22 +195,68 @@ export const getAllUsers = async (
         status: ResponseStatus.Success,
         message: "Users fetched successfully with pagination",
         code: 200,
-        field: users,
-        totalCount: totalUsers, // Renamed for clarity
+        field: JSON.parse(JSON.stringify(users)),
+        totalCount: totalUsers,
         totalPages: Math.ceil(totalUsers / limit),
         currentPage: page,
       };
     } else {
       // Fetch all users without pagination
-      users = await User.find({});
+      users = await User.find({ role: { $ne: UserRole.Admin } })
+        .lean()
+        .select("-password");
 
       return {
         status: ResponseStatus.Success,
         message: "All users fetched successfully without pagination",
         code: 200,
-        field: users,
+        field: JSON.parse(JSON.stringify(users)),
       };
     }
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+// Update user attributes (protected)
+export const updateUser = async (
+  userId: string,
+  updateData: Partial<UserData>, // Use Partial to allow partial updates
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<IUser | string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
+  try {
+    // Validate the input using Zod; you can adjust validation as needed
+    const parsedData = userSchema.partial().parse(updateData); // Allow partial updates
+
+    await connectToDatabase();
+
+    // Update the user in the database
+    const updatedUser = await User.findByIdAndUpdate(userId, parsedData, {
+      new: true, // Return the updated document
+      runValidators: true, // Validate the update data against the schema
+    }).select("-password");
+
+    if (!updatedUser) {
+      return {
+        status: ResponseStatus.Error,
+        message: "User not found",
+        code: 404,
+        field: "User not found",
+      };
+    }
+
+    return {
+      status: ResponseStatus.Success,
+      message: "User updated successfully",
+      code: 200,
+      field: JSON.parse(JSON.stringify(updatedUser)),
+    };
   } catch (error) {
     return handleError(error);
   }

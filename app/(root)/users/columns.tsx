@@ -2,8 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { removeUser } from "@/lib/actions/user.actions";
-import { IUser } from "@/types";
+import useFetchUsers from "@/hooks/useFetchUsers";
+import { removeUser, updateUser } from "@/lib/actions/user.actions";
+import { handleError } from "@/lib/utils";
+import { IUser, ResponseStatus } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +16,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Eye, EyeOff, MoreHorizontal, Trash } from "lucide-react";
+import { toast } from "react-toastify";
 
 export const userColumns: ColumnDef<IUser>[] = [
   {
@@ -89,24 +92,54 @@ export const userColumns: ColumnDef<IUser>[] = [
   {
     accessorKey: "actions",
     header: "Actions",
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const isActive = row.original.isActive;
       const userId = row.original._id;
       const adminToken = row.original.token;
+      const { fetchUsers } = useFetchUsers();
 
-      const handleIsActive = () => {
-        if (isActive) {
-          row.original.isActive = false;
-        } else {
-          row.original.isActive = true;
+      const handleIsActive = async () => {
+        if (!userId || !adminToken) return;
+
+        const newStatus = !isActive; // Toggle the active status
+
+        try {
+          // Call the updateUser function to update the user's isActive status
+          const response = await updateUser(
+            userId,
+            { isActive: newStatus },
+            adminToken
+          );
+          if (response.status === ResponseStatus.Success) {
+            await fetchUsers(); // Refresh the user list to reflect the change
+          } else {
+            console.error("Failed to update user status:", response.message);
+          }
+        } catch (error) {
+          const errorRecreate = handleError(error);
+          console.error(error);
+          if (errorRecreate.message) {
+            toast.error(errorRecreate.message);
+          } else {
+            toast.error("An error occurred during login.");
+          }
         }
       };
 
       const handleDelete = async (id: string, token: string) => {
         try {
           const response = await removeUser(id, token);
+          if (response.status === ResponseStatus.Success) {
+            await fetchUsers();
+          }
         } catch (error) {
+          const errorRecreate = handleError(error);
           console.error(error);
+          if (errorRecreate.message) {
+            toast.error(errorRecreate.message);
+          } else {
+            toast.error("An error occurred during login.");
+          }
         }
       };
 
