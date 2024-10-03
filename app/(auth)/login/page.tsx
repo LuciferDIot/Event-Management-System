@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/useAuth"; // Importing the useAuth hook
 import { logInUser } from "@/lib/actions/user.actions";
 import { handleError } from "@/lib/utils";
 import { loginSchema } from "@/schema/login.schema";
@@ -32,6 +33,7 @@ import { z } from "zod";
 
 export default function ProfileForm() {
   const router = useRouter();
+  const { login } = useAuth(); // Using the login function from the custom hook
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -61,8 +63,7 @@ export default function ProfileForm() {
             response.field.token &&
             response.field.user
           ) {
-            localStorage.setItem("token", response.field.token);
-            localStorage.setItem("user", JSON.stringify(response.field.user));
+            login(response.field.user, response.field.token);
           } else {
             throw new Error("Token is undefined.");
           }
@@ -76,7 +77,7 @@ export default function ProfileForm() {
       }
     } catch (error) {
       const errorRecreate = handleError(error);
-
+      console.error(error);
       if (errorRecreate.message) {
         toast.error(errorRecreate.message);
       } else {

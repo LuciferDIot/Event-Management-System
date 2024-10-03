@@ -103,11 +103,13 @@ export function removeKeysFromQuery({
   );
 }
 
+import mongoose from "mongoose";
+
 export const handleError = (error: unknown): IResponse<string> => {
   console.error(error); // Log the actual error for debugging purposes
 
   // Handle Mongoose validation errors (e.g., schema validation errors)
-  if (error instanceof Error.ValidationError) {
+  if (error instanceof mongoose.Error.ValidationError) {
     return {
       status: ResponseStatus.Error,
       message: "Validation error. Please check the provided data.",
@@ -171,6 +173,15 @@ export const handleError = (error: unknown): IResponse<string> => {
       return {
         status: ResponseStatus.Error,
         message: "Bad request. Please verify your input and try again.",
+      };
+    }
+
+    // Handle MongoDB connection errors using class check
+    if (error instanceof mongoose.Error.MongooseServerSelectionError) {
+      return {
+        status: ResponseStatus.Error,
+        message:
+          "Could not connect to MongoDB. Ensure your IP is whitelisted and check your connection.",
       };
     }
   }
