@@ -6,20 +6,20 @@ import { getAllUsers } from "@/lib/actions/user.actions";
 import { handleError } from "@/lib/utils";
 import { IUser, ResponseStatus } from "@/types";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { userColumns } from "./columns";
 
 function Users() {
   const [users, setUsers] = useState<IUser[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // New state for errors
   const { token } = useAuth();
 
   const fetchUsers = async () => {
     if (!token) {
-      toast.error("Token is undefined.");
+      setErrorMessage("Token is undefined.");
       return;
     }
     try {
-      const response = await getAllUsers(1, 10, token);
+      const response = await getAllUsers(token);
 
       if (response.status === ResponseStatus.Success) {
         if (response.field) {
@@ -30,23 +30,20 @@ function Users() {
               throw new Error("Invalid response field type.");
             }
           } else {
-            throw new Error("Token is undefined.");
+            throw new Error("Invalid response field.");
           }
         } else {
-          throw new Error("Token is undefined.");
+          throw new Error("Missing response field.");
         }
-        toast.success(response.message);
       } else {
-        toast.error(response.message);
+        setErrorMessage(response.message);
       }
     } catch (error) {
       const errorRecreate = handleError(error);
       console.error(error);
-      if (errorRecreate.message) {
-        toast.error(errorRecreate.message);
-      } else {
-        toast.error("An error occurred during login.");
-      }
+      setErrorMessage(
+        errorRecreate.message || "An error occurred while fetching users."
+      );
     }
   };
 
@@ -56,6 +53,11 @@ function Users() {
 
   return (
     <div className="container mx-auto py-10">
+      {errorMessage && (
+        <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">
+          <p>{errorMessage}</p>
+        </div>
+      )}
       <DataTable columns={userColumns} data={users} />
     </div>
   );

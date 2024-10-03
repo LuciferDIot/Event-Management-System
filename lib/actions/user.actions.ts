@@ -151,11 +151,11 @@ export const deactivateUser = async (
   }
 };
 
-// Get all users (protected) with pagination
+// Get all users (protected) with optional pagination
 export const getAllUsers = async (
-  page: number = 1, // Default to the first page
-  limit: number = 10, // Default limit for number of users per page
-  token: string // Expect the JWT token to be passed
+  token: string, // Expect the JWT token to be passed
+  page?: number, // Optional page number for pagination
+  limit?: number // Optional limit for number of users per page
 ): Promise<IResponse<IUser[] | string | jwt.JwtPayload>> => {
   // Verify the token before proceeding
   const tokenResponse = await verifyToken(token, [UserRole.Admin]);
@@ -166,24 +166,39 @@ export const getAllUsers = async (
   try {
     await connectToDatabase();
 
-    // Calculate the number of documents to skip
-    const skip = (page - 1) * limit;
+    let users: IUser[] = [];
+    let totalUsers: number = 0;
 
-    // Fetch the paginated users
-    const users: IUser[] = await User.find({}).skip(skip).limit(limit);
+    if (page && limit) {
+      // Calculate the number of documents to skip for pagination
+      const skip = (page - 1) * limit;
 
-    // Get total count of users for calculating total pages
-    const totalUsers = await User.countDocuments();
+      // Fetch the paginated users
+      users = await User.find({}).skip(skip).limit(limit);
 
-    return {
-      status: ResponseStatus.Success,
-      message: "All users fetched successfully",
-      code: 200,
-      field: users,
-      totalEvents: totalUsers, // You can rename this field if needed, for clarity
-      totalPages: Math.ceil(totalUsers / limit),
-      currentPage: page,
-    };
+      // Get total count of users for calculating total pages
+      totalUsers = await User.countDocuments();
+
+      return {
+        status: ResponseStatus.Success,
+        message: "Users fetched successfully with pagination",
+        code: 200,
+        field: users,
+        totalCount: totalUsers, // Renamed for clarity
+        totalPages: Math.ceil(totalUsers / limit),
+        currentPage: page,
+      };
+    } else {
+      // Fetch all users without pagination
+      users = await User.find({});
+
+      return {
+        status: ResponseStatus.Success,
+        message: "All users fetched successfully without pagination",
+        code: 200,
+        field: users,
+      };
+    }
   } catch (error) {
     return handleError(error);
   }

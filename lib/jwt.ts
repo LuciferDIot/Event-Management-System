@@ -27,8 +27,12 @@ export const verifyToken = async (
       process.env.JWT_SECRET as string
     ) as DecodedToken;
 
+    // Ensure userRoles is an array
+    const userRoles = Array.isArray(decoded.role)
+      ? decoded.role
+      : [decoded.role];
+
     // Check if user has the required role
-    const userRoles = decoded.role;
     const hasAccess = userRoles.some((role) => allowedRoles.includes(role));
 
     if (!hasAccess) {

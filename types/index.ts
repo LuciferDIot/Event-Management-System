@@ -117,7 +117,7 @@ export interface IResponse<T> {
   message: string;
   code?: number;
   field?: T;
-  totalEvents?: number;
+  totalCount?: number;
   totalPages?: number;
   currentPage?: number;
 }

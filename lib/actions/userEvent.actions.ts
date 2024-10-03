@@ -77,7 +77,7 @@ export const getUserEvents = async (
       message: "User events fetched successfully",
       code: 200,
       field: userEvents,
-      totalEvents: totalUserEvents,
+      totalCount: totalUserEvents,
       totalPages: Math.ceil(totalUserEvents / limit),
       currentPage: page,
     };

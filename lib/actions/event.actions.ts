@@ -123,7 +123,7 @@ export const getAllEvents = async (
       message: "All events fetched successfully",
       code: 200,
       field: events,
-      totalEvents: totalEvents,
+      totalCount: totalEvents,
       totalPages: Math.ceil(totalEvents / limit),
       currentPage: page,
     };
@@ -172,7 +172,7 @@ export const getUserEvents = async (
       message: "Events fetched successfully",
       code: 200,
       field: events,
-      totalEvents: totalEvents,
+      totalCount: totalEvents,
       totalPages: Math.ceil(totalEvents / limit),
       currentPage: page,
     };

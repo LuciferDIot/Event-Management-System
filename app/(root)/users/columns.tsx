@@ -15,10 +15,6 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 export const userColumns: ColumnDef<IUser>[] = [
   {
-    accessorKey: "_id",
-    header: "ID",
-  },
-  {
     accessorKey: "email",
     header: ({ column }) => {
       return (
