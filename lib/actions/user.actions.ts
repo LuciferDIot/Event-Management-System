@@ -29,12 +29,14 @@ export const logInUser = async (
 
     if (user) {
       if (await bcrypt.compare(password.trim(), user.password)) {
-        const token = generateToken({
+        const token = await generateToken({
           userId: user._id,
           email: user.email,
           role: user.role,
           username: user.username,
         });
+
+        console.log(token);
 
         return {
           status: ResponseStatus.Success,

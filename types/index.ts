@@ -20,7 +20,7 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   password: string;
-  isActive?: boolean;
+  isActive: boolean;
 }
 
 // ====== USER PARAMS

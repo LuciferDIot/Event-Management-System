@@ -9,9 +9,10 @@ export const hasRole = (userRoles: string[], allowedRoles: string[]) => {
 
 // Utility to generate JWT
 export const generateToken = (payload: jwt.JwtPayload) => {
-  return jwt.sign(payload, process.env.JWT_SECRET as string, {
+  const output = jwt.sign(payload, process.env.JWT_SECRET as string, {
     expiresIn: "1d",
   });
+  return output;
 };
 
 // Common method to verify token and check user roles
