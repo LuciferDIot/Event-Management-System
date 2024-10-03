@@ -1,34 +1,32 @@
+"use client";
 import { Progress } from "@/components/ui/progress";
+import { ROUTES } from "@/data";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/router";
+import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "next/navigation";
 import React from "react";
 
-const withAuth = <P extends object>(
-  WrappedComponent: React.ComponentType<P>
-) => {
-  const AuthenticatedComponent: React.FC<P> = (props) => {
-    const { user, token } = useAuth();
-    const router = useRouter();
-    const [isLoading, setIsLoading] = React.useState(true); // State to track loading
+const WithAuth = ({ children }: { children: React.ReactNode }) => {
+  const { user, token } = useAuth();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(true);
+  const hasRehydrated = useAuthStore.persist.hasHydrated();
 
-    // Check if the user is logged in
-    React.useEffect(() => {
+  React.useEffect(() => {
+    if (hasRehydrated) {
       if (!user || !token) {
-        router.push("/login"); // Redirect to login if not authenticated
+        router.push(ROUTES.LOGIN);
       } else {
-        setIsLoading(false); // Stop loading when user is authenticated
+        setIsLoading(false);
       }
-    }, [user, token, router]);
-
-    // Show progress bar during loading state
-    if (isLoading) {
-      return <Progress value={50} className="w-[60%] mx-auto mt-10" />; // You can customize the progress value and styles
     }
+  }, [user, token, hasRehydrated, router]);
 
-    return <WrappedComponent {...props} />;
-  };
+  if (isLoading) {
+    return <Progress value={50} className="w-[60%] mx-auto mt-10" />;
+  }
 
-  return AuthenticatedComponent;
+  return <>{children}</>;
 };
 
-export default withAuth;
+export default WithAuth;

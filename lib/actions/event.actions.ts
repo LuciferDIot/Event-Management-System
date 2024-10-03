@@ -92,8 +92,18 @@ export const updateEventStatus = async (
 // Get all events (not protected) with pagination
 export const getAllEvents = async (
   page: number = 1, // Default to the first page
-  limit: number = 10 // Default limit for number of events per page
-): Promise<IResponse<IEvent[] | string>> => {
+  limit: number = 10, // Default limit for number of events per page
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<IEvent[] | string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  let findQuery = {};
+  const isAdmintokenResponse = await verifyToken(token, [UserRole.Admin]);
+  if (isAdmintokenResponse.status === ResponseStatus.Error) {
+    findQuery = {
+      isFree: true,
+    };
+  }
+
   try {
     await connectToDatabase();
 
@@ -101,10 +111,12 @@ export const getAllEvents = async (
     const skip = (page - 1) * limit;
 
     // Fetch the paginated events
-    const events: IEvent[] = await Event.find({}).skip(skip).limit(limit);
+    const events: IEvent[] = await Event.find(findQuery)
+      .skip(skip)
+      .limit(limit);
 
-    // Get total count of events for calculating total pages
-    const totalEvents = await Event.countDocuments();
+    // Get the total count of events, applying the same filter as the findQuery
+    const totalEvents = await Event.countDocuments(findQuery);
 
     return {
       status: ResponseStatus.Success,
