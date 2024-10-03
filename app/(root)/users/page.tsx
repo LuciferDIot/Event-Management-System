@@ -22,7 +22,7 @@ function Users() {
 
   return (
     <Dialog>
-      <div className="container mx-auto py-10">
+      <div className=" container mx-auto py-10">
         {errorMessage && (
           <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">
             <p>{errorMessage}</p>

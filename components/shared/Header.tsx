@@ -11,7 +11,7 @@ import { NavigationMenuItem } from "./NavigationMenu";
 export default function Header() {
   const { user, isLoggedIn, logout } = useAuth();
   return (
-    <div className="w-full h-[100px] flex justify-evenly items-center">
+    <div className="sticky top-0 shadow-md backdrop-blur-lg z-30 w-full h-[100px] flex justify-evenly items-center">
       <div>
         <Image
           src="/images/logo.svg"

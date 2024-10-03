@@ -4,7 +4,9 @@ import { Poppins } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -28,9 +30,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={poppins.variable}>
+      <body
+        className={cn(
+          poppins.variable,
+          "flex flex-col justify-between w-full h-full min-h-screen"
+        )}
+      >
         <Header />
         {children}
+        <Footer />
         <ToastContainer />
       </body>
     </html>
