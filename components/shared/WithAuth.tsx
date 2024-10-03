@@ -21,7 +21,11 @@ const WithAuth = ({ children }: { children: React.ReactNode }) => {
   }, [isLoggedIn, hasHydrated, router, user, token]);
 
   if (isLoading) {
-    return <Progress value={50} className="w-[60%] mx-auto mt-10" />;
+    return (
+      <div className="flex-center w-full h-full">
+        <Progress value={50} className="w-full max-w-[400px] mx-auto mt-10" />
+      </div>
+    );
   }
 
   return <>{children}</>;

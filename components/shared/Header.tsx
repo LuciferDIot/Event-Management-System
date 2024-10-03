@@ -23,9 +23,9 @@ export default function Header() {
       <div>
         <ol className="flex gap-6 items-end">
           {user?.role === UserRole.Admin && (
-            <NavigationMenuItem title={ROUTES.USERS} />
+            <NavigationMenuItem route={ROUTES.USERS} title="Users" />
           )}
-          <NavigationMenuItem title={ROUTES.EVENTS} />
+          <NavigationMenuItem route={ROUTES.EVENTS} title="Events" />
           <li>
             {isLoggedIn ? (
               <Button onClick={logout}>Logout</Button>
