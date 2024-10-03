@@ -2,12 +2,14 @@ import { ROUTES } from "@/data";
 import { useAuthStore } from "@/stores/authStore";
 import { IUser } from "@/types";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 export const useAuth = () => {
-  const { setUserData, clearUserData, user, token, expiresAt } = useAuthStore();
+  const { setUserData, clearUserData, user, token, expiresAt, hasHydrated } =
+    useAuthStore(); // Access hasHydrated
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
   const login = (user: IUser, token: string) => {
@@ -16,6 +18,7 @@ export const useAuth = () => {
   };
 
   const logout = () => {
+    console.log("Logging out..."); // Debugging line
     clearUserData();
     router.push(ROUTES.LOGIN);
   };
@@ -26,15 +29,16 @@ export const useAuth = () => {
     }
   };
 
-  // Method to check if the user is logged in
-  const isLoggedIn = () => {
+  const isLoggedInFunc = () => {
     return !!token && !!user && Date.now() <= expiresAt!;
   };
 
-  // Automatically check session when the hook is used
   useEffect(() => {
-    checkSession();
-  }, [expiresAt]);
+    if (hasHydrated) {
+      checkSession();
+      setIsLoggedIn(isLoggedInFunc());
+    }
+  }, [hasHydrated, expiresAt, user, token]); // Add user and token to dependencies
 
-  return { login, logout, user, token, isLoggedIn };
+  return { login, logout, user, token, isLoggedIn, hasHydrated }; // Return hasHydrated
 };

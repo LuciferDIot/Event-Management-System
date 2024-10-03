@@ -107,7 +107,7 @@ export default function ProfileForm() {
           <CardContent className="space-y-2">
             <Tabs
               defaultValue="username"
-              className="w-[600px] flex flex-col gap-4"
+              className="md:w-[600px] sm:w-[400px] flex flex-col gap-4"
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger

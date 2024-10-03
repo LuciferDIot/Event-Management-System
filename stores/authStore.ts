@@ -6,7 +6,7 @@ interface AuthState {
   user: IUser | null;
   token: string | null;
   expiresAt: number | null;
-  hasHydrated: boolean; // Add this flag for hydration
+  hasHydrated: boolean;
   setUserData: (user: IUser, token: string, expiresAt: number) => void;
   clearUserData: () => void;
 }
@@ -28,11 +28,13 @@ export const useAuthStore = create(
       },
 
       clearUserData: () => {
+        console.log("Clearing user data"); // Debugging line
         set({
           user: null,
           token: null,
           expiresAt: null,
         });
+        localStorage.removeItem("auth-storage"); // Clear the storage on logout
       },
     }),
     {
