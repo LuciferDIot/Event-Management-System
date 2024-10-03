@@ -1,5 +1,6 @@
 "use client";
 
+import DeleteDialog from "@/components/shared/DeleteDialog";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import useFetchUsers from "@/hooks/useFetchUsers";
@@ -16,6 +17,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Eye, EyeOff, MoreHorizontal, Trash } from "lucide-react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 
 export const userColumns: ColumnDef<IUser>[] = [
@@ -96,6 +98,12 @@ export const userColumns: ColumnDef<IUser>[] = [
       const isActive = row.original.isActive;
       const userId = row.original._id;
       const adminToken = row.original.token;
+      const [alertOpen, setAlertOpen] = useState(false);
+
+      const showActionToggle = (open: boolean) => {
+        setAlertOpen(open);
+      };
+
       const { fetchUsers } = useFetchUsers();
 
       const handleIsActive = async () => {
@@ -147,6 +155,15 @@ export const userColumns: ColumnDef<IUser>[] = [
 
       return (
         <Dialog>
+          <DeleteDialog
+            isOpen={alertOpen}
+            showActionToggle={showActionToggle}
+            task={{
+              title: "Are you sure you want to delete this user?",
+              description: "This action cannot be undone.",
+              onClick: () => handleDelete(userId, adminToken),
+            }}
+          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="z-10">
               <Button
@@ -184,7 +201,7 @@ export const userColumns: ColumnDef<IUser>[] = [
               )}
               <DropdownMenuItem
                 className="p-[2%] cursor-pointer flex-center rounded-md bg-red-600 text-white mt-2"
-                onClick={() => handleDelete(userId, adminToken)}
+                onClick={() => showActionToggle(true)}
               >
                 <Trash className="mr-2 h-4 w-4" />
                 Remove

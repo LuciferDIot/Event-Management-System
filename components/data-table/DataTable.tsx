@@ -31,12 +31,17 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   filterPlaceholder?: string;
+  button?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   filterPlaceholder,
+  button,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -69,7 +74,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} filterPlaceholder={filterPlaceholder} />
+      <DataTableToolbar
+        table={table}
+        filterPlaceholder={filterPlaceholder}
+        button={button}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

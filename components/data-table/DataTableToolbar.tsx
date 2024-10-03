@@ -6,16 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 
+import { DialogTrigger } from "../ui/dialog";
 import { DataTableViewOptions } from "./DataTableViewOptions";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   filterPlaceholder?: string;
+  button?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
 export function DataTableToolbar<TData>({
   table,
   filterPlaceholder,
+  button,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -42,6 +48,13 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <DataTableViewOptions table={table} />
+      {button && (
+        <DialogTrigger asChild onClick={button.onClick}>
+          <Button variant="default" className="h-8" onClick={button.onClick}>
+            {button.label}
+          </Button>
+        </DialogTrigger>
+      )}
     </div>
   );
 }
