@@ -159,7 +159,7 @@ export const deactivateUser = async (
 };
 
 // Get all users (protected) with optional pagination
-export const getAllUsers = async (
+export const getAllMembers = async (
   token: string, // Expect the JWT token to be passed
   page?: number, // Optional page number for pagination
   limit?: number // Optional limit for number of users per page
@@ -260,6 +260,70 @@ export const updateUser = async (
       code: 200,
       field: JSON.parse(JSON.stringify(updatedUser)),
     };
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const getAllUsers = async (
+  token: string, // Expect the JWT token to be passed
+  page?: number, // Optional page number for pagination
+  limit?: number // Optional limit for number of users per page
+): Promise<IResponse<IUser[] | string | jwt.JwtPayload>> => {
+  // Verify the token before proceeding
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
+  try {
+    await connectToDatabase();
+
+    let users: IUser[] = [];
+    let totalUsers: number = 0;
+
+    if (page && limit) {
+      // Calculate the number of documents to skip for pagination
+      const skip = (page - 1) * limit;
+
+      // Fetch the paginated users
+      users = await User.find({
+        role: { $ne: UserRole.Admin },
+      })
+        .lean()
+        .skip(skip)
+        .limit(limit)
+        .select("-password");
+
+      // Get total count of non-admin users for calculating total pages
+      totalUsers = await User.countDocuments({
+        role: { $ne: UserRole.Admin },
+      });
+
+      return {
+        status: ResponseStatus.Success,
+        message: "Users fetched successfully with pagination",
+        code: 200,
+        field: JSON.parse(JSON.stringify(users)),
+        totalCount: totalUsers,
+        totalPages: Math.ceil(totalUsers / limit),
+        currentPage: page,
+      };
+    } else {
+      // Fetch all non-admin users without pagination
+      users = await User.find({
+        role: { $ne: UserRole.Admin },
+      })
+        .lean()
+        .select("-password");
+
+      return {
+        status: ResponseStatus.Success,
+        message: "All non-admin users fetched successfully without pagination",
+        code: 200,
+        field: JSON.parse(JSON.stringify(users)),
+      };
+    }
   } catch (error) {
     return handleError(error);
   }

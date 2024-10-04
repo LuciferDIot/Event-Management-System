@@ -16,12 +16,14 @@ interface DataTableToolbarProps<TData> {
     label: string;
     onClick: () => void;
   };
+  filterColumn?: string;
 }
 
 export function DataTableToolbar<TData>({
   table,
   filterPlaceholder,
   button,
+  filterColumn,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -30,9 +32,15 @@ export function DataTableToolbar<TData>({
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder={filterPlaceholder ?? "Filter..."}
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          value={
+            (table
+              .getColumn(filterColumn ? filterColumn : "email")
+              ?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table
+              .getColumn(filterColumn ? filterColumn : "email")
+              ?.setFilterValue(event.target.value)
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />

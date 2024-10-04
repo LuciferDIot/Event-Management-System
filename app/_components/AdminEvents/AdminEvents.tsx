@@ -1,15 +1,23 @@
 "use client";
 
 import { DataTable } from "@/components/data-table/DataTable";
-import { Dialog } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ROUTES } from "@/data";
 import useFetchEvents from "@/hooks/useEventActions";
+import useFetchUsers from "@/hooks/useFetchUsers";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "react-toastify";
 import { eventColumns } from "./columns";
+import CreateUserEvents from "./CreateUserEvents";
 
 function AdminEvents() {
   const router = useRouter();
+  const { isMounted: isMountedUsers, nonAdminUsers } = useFetchUsers();
   const { errorMessage, isMounted, events } = useFetchEvents();
+  const [dialogContent, setDialogContent] = useState<React.ReactNode | null>(
+    null
+  );
 
   // Render nothing if not mounted to avoid hydration error
   if (!isMounted) {
@@ -26,8 +34,18 @@ function AdminEvents() {
         )}
         <DataTable
           columns={eventColumns}
+          filterColumn="title"
           data={events} // Pass users from Zustand store to the DataTable
           filterPlaceholder={"Search by title..."}
+          onRowClick={(event) => {
+            if (isMountedUsers) {
+              setDialogContent(
+                <CreateUserEvents event={event} user={nonAdminUsers} />
+              );
+            } else {
+              toast.error("Users not loaded");
+            }
+          }}
           button={{
             label: "Add event",
             onClick: () => {
@@ -36,6 +54,7 @@ function AdminEvents() {
           }}
         />
       </div>
+      {dialogContent && <DialogContent>{dialogContent}</DialogContent>}
     </Dialog>
   );
 }
