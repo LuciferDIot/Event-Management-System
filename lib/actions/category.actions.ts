@@ -12,6 +12,7 @@ import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
 import Category from "../database/models/category.model";
 import { verifyToken } from "../jwt";
+import { handleServerError } from "../server-utils";
 import { handleError } from "../utils";
 
 // Protected route for creating category
@@ -40,6 +41,8 @@ export const createCategory = async (
       field: JSON.parse(JSON.stringify(newCategory)),
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -60,6 +63,8 @@ export const getAllCategories = async (): Promise<
       field: JSON.parse(JSON.stringify(categories)),
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };

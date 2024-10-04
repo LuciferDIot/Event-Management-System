@@ -14,6 +14,7 @@ import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
 import User from "../database/models/user.model";
 import { generateToken, verifyToken } from "../jwt";
+import { handleServerError } from "../server-utils";
 import { handleError } from "../utils";
 
 export const logInUser = async (
@@ -67,6 +68,8 @@ export const logInUser = async (
         field: "Invalid Email or Username",
       };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     console.error("Login error:", error);
     return handleError(error);
   }
@@ -102,6 +105,8 @@ export const createUser = async (
       field: JSON.parse(JSON.stringify(userWithoutPassword)),
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -128,6 +133,8 @@ export const removeUser = async (
       field: "Success",
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -154,6 +161,8 @@ export const deactivateUser = async (
       field: "Success",
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -217,6 +226,8 @@ export const getAllMembers = async (
       };
     }
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -261,6 +272,8 @@ export const updateUser = async (
       field: JSON.parse(JSON.stringify(updatedUser)),
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -325,6 +338,8 @@ export const getAllUsers = async (
       };
     }
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };

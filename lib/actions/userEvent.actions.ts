@@ -12,6 +12,7 @@ import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
 import UserEvent from "../database/models/userEvent.model";
 import { verifyToken } from "../jwt";
+import { handleServerError } from "../server-utils";
 import { handleError } from "../utils";
 
 // Create user-event relationship (protected)
@@ -29,15 +30,17 @@ export const createUserEvent = async (
     userEventSchema.parse({ user: userId, event: eventId });
 
     await connectToDatabase();
-    const userEvent = await UserEvent.create({ user: userId, event: eventId });
 
+    const userEvent = await UserEvent.create({ user: userId, event: eventId });
     return {
       status: ResponseStatus.Success,
       message: "User-event relationship created successfully",
       code: 200,
-      field: userEvent,
+      field: JSON.parse(JSON.stringify(userEvent)),
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -64,9 +67,11 @@ export const getUserEventsByEventId = async (
       status: ResponseStatus.Success,
       message: "User events fetched successfully",
       code: 200,
-      field: userEvents,
+      field: JSON.parse(JSON.stringify(userEvents)),
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -106,6 +111,8 @@ export const removeUserEvent = async (
       field: "Success",
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -138,12 +145,54 @@ export const getUserEvents = async (
       status: ResponseStatus.Success,
       message: "User events fetched successfully",
       code: 200,
-      field: userEvents,
+      field: JSON.parse(JSON.stringify(userEvents)),
       totalCount: totalUserEvents,
       totalPages: Math.ceil(totalUserEvents / limit),
       currentPage: page,
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
+    return handleError(error);
+  }
+};
+
+// Get users for a specific event (protected) with pagination
+export const getEventUsers = async (
+  eventId: string,
+  page: number = 1, // Default to the first page
+  limit: number = 10, // Default limit for number of users per page
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
+  const tokenResponse = await verifyToken(token, [UserRole.User]);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
+  try {
+    await connectToDatabase();
+
+    const skip = (page - 1) * limit;
+
+    const eventUsers: IUserEvent[] = await UserEvent.find({ event: eventId })
+      .skip(skip)
+      .limit(limit)
+      .populate("user");
+
+    const totalEventUsers = await UserEvent.countDocuments({ event: eventId });
+
+    return {
+      status: ResponseStatus.Success,
+      message: "Event users fetched successfully",
+      code: 200,
+      field: JSON.parse(JSON.stringify(eventUsers)),
+      totalCount: totalEventUsers,
+      totalPages: Math.ceil(totalEventUsers / limit),
+      currentPage: page,
+    };
+  } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -170,6 +219,8 @@ export const updateUserEventStatus = async (
       field: "Success",
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };

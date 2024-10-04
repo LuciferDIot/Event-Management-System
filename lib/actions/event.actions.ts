@@ -14,6 +14,7 @@ import { connectToDatabase } from "../database";
 import Category from "../database/models/category.model";
 import Event from "../database/models/event.model";
 import { verifyToken } from "../jwt";
+import { handleServerError } from "../server-utils";
 import { handleError } from "../utils";
 
 // Create a new event (protected)
@@ -56,6 +57,8 @@ export const createEvent = async (
       field: JSON.parse(JSON.stringify(newEvent)),
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -81,6 +84,8 @@ export const updateEventStatus = async (
       field: "Success",
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -124,6 +129,8 @@ export const getAllEvents = async (
       currentPage: page,
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };
@@ -169,6 +176,8 @@ export const getUserEvents = async (
       currentPage: page,
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
     return handleError(error);
   }
 };

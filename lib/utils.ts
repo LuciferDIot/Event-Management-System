@@ -13,48 +13,44 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const formatDateTime = (dateString: Date) => {
-  const dateTimeOptions: Intl.DateTimeFormatOptions = {
-    weekday: "long", // full weekday name (e.g., 'Monday')
-    month: "long", // full month name (e.g., 'October')
-    day: "numeric", // numeric day of the month (e.g., '25')
-    hour: "numeric", // numeric hour (e.g., '8')
-    minute: "numeric", // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
-  };
-
+export const formatDateTime = (dateString: Date, otherDate?: Date) => {
   const dateOptions: Intl.DateTimeFormatOptions = {
-    weekday: "long", // full weekday name (e.g., 'Monday')
-    month: "long", // full month name (e.g., 'October')
     year: "numeric", // numeric year (e.g., '2023')
-    day: "numeric", // numeric day of the month (e.g., '25')
+    month: "2-digit", // two-digit month (e.g., '10')
+    day: "2-digit", // two-digit day (e.g., '04')
   };
 
   const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: "numeric", // numeric hour (e.g., '8')
-    minute: "numeric", // numeric minute (e.g., '30')
-    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+    hour: "2-digit", // two-digit hour (e.g., '08' or '20')
+    minute: "2-digit", // two-digit minute (e.g., '30')
+    hour12: false, // use 24-hour clock
   };
 
-  const formattedDateTime: string = new Date(dateString).toLocaleString(
-    "en-US",
-    dateTimeOptions
-  );
-
-  const formattedDate: string = new Date(dateString).toLocaleString(
-    "en-US",
+  const formattedDate: string = new Date(dateString).toLocaleDateString(
+    "en-CA", // Using en-CA locale to get 'YYYY/MM/DD' format
     dateOptions
   );
 
-  const formattedTime: string = new Date(dateString).toLocaleString(
-    "en-US",
+  const formattedTime: string = new Date(dateString).toLocaleTimeString(
+    "en-GB", // Using en-GB locale to ensure 24-hour format
     timeOptions
   );
 
+  const getTimeDifferenceInDays = (d1: Date, d2: Date) => {
+    const diffMs = Math.abs(d1.getTime() - d2.getTime()); // Difference in milliseconds
+    return diffMs / (1000 * 60 * 60 * 24); // Convert to days
+  };
+
   return {
-    dateTime: formattedDateTime, // e.g., 'Date & Time: Mon, Oct 25, 8:30 PM'
-    dateOnly: formattedDate, // e.g., 'Date: Monday, October 25, 2023'
-    timeOnly: formattedTime, // e.g., 'Time: 8:30 PM'
+    dateTime: otherDate
+      ? getTimeDifferenceInDays(new Date(dateString), new Date(otherDate)) < 1
+        ? formattedTime // If only hours differ, show time only
+        : formattedDate // If days differ, show date only
+      : (() => {
+          throw new Error("otherDate parameter is required for dateTime");
+        })(),
+    dateOnly: formattedDate, // e.g., '2023/10/04'
+    timeOnly: formattedTime, // e.g., '20:30'
   };
 };
 
@@ -104,7 +100,6 @@ export function removeKeysFromQuery({
 }
 
 import mongoose from "mongoose";
-import { handleServerError } from "./server-utils";
 
 export const handleError = (error: unknown): IResponse<string> => {
   // Handle Mongoose validation errors (e.g., schema validation errors)
@@ -115,9 +110,6 @@ export const handleError = (error: unknown): IResponse<string> => {
       field: Object.keys(error.errors)[0],
     };
   }
-
-  const serverError = handleServerError(error);
-  if (serverError) return serverError;
 
   if (error instanceof Error) {
     // MongoDB duplicate key error

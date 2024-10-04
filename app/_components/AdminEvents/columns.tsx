@@ -81,7 +81,14 @@ export const eventColumns: ColumnDef<IEvent>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => formatDateTime(row.original.startDateTime).dateTime,
+    cell: ({ row }) => (
+      <span className="w-full h-full flex-center">
+        {
+          formatDateTime(row.original.startDateTime, row.original.endDateTime)
+            .dateTime
+        }
+      </span>
+    ),
   },
   {
     accessorKey: "endDateTime",
@@ -96,7 +103,14 @@ export const eventColumns: ColumnDef<IEvent>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => formatDateTime(row.original.endDateTime).dateTime,
+    cell: ({ row }) => (
+      <span className="w-full h-full flex-center">
+        {
+          formatDateTime(row.original.startDateTime, row.original.endDateTime)
+            .dateTime
+        }
+      </span>
+    ),
   },
   {
     accessorKey: "price",

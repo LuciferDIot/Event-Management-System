@@ -38,13 +38,13 @@ function AdminEvents() {
 
   return (
     <Dialog>
-      <div className="py-10">
+      <div className="w-full h-full flex-center flex-col py-10">
         {errorMessage ? (
-          <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">
+          <div className="w-full bg-red-100 text-red-700 p-4 mb-4 rounded">
             <p>{errorMessage}</p>
           </div>
         ) : (
-          <div className="bg-blue-100 text-black-700 p-4 mb-4 rounded">
+          <div className="w-full bg-black bg-opacity-10 text-black-700 p-4 mb-4 rounded">
             <p>Select each row to link users with their respective events.</p>
           </div>
         )}
