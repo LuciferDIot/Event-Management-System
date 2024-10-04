@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -18,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { IEvent, IUser } from "@/types";
+import { X } from "lucide-react";
 import { useState } from "react";
 
 type Props = {
@@ -27,6 +29,21 @@ type Props = {
 
 function CreateUserEvents({ event, users }: Props) {
   const [filteredUsers, setFilteredUsers] = useState(users);
+  const [addedUsers, setAddedUsers] = useState<IUser[]>([]);
+  const [selectedUser, setSelectedUser] = useState<string>("");
+
+  const handleUserSelect = (user: IUser) => {
+    // Add the selected user to the addedUsers state
+    setAddedUsers((prev) => [...prev, user]);
+    // Reset the select input and search input
+    setSelectedUser("");
+    setFilteredUsers(users); // Reset filtered users to show all
+  };
+
+  const removeUser = (userToRemove: IUser) => {
+    // Filter out the user to remove
+    setAddedUsers((prev) => prev.filter((user) => user.id !== userToRemove.id));
+  };
 
   return (
     <Card>
@@ -50,7 +67,13 @@ function CreateUserEvents({ event, users }: Props) {
             );
           }}
         />
-        <Select>
+        <Select
+          onValueChange={(value) => {
+            const user = JSON.parse(value) as IUser;
+            handleUserSelect(user);
+          }}
+          value={selectedUser}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a user" />
           </SelectTrigger>
@@ -65,6 +88,21 @@ function CreateUserEvents({ event, users }: Props) {
             </SelectGroup>
           </SelectContent>
         </Select>
+
+        {/* Display added users */}
+        <div className="mt-4 flex flex-wrap">
+          {addedUsers.map((user) => (
+            <Button
+              key={user.id}
+              variant="outline"
+              onClick={() => removeUser(user)}
+              className="h-8 px-2 lg:px-3 flex items-center mr-2 mb-2"
+            >
+              {user.username}
+              <X className="ml-2 h-4 w-4" />
+            </Button>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
