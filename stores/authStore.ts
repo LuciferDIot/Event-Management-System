@@ -28,13 +28,12 @@ export const useAuthStore = create(
       },
 
       clearUserData: () => {
-        console.log("Clearing user data"); // Debugging line
         set({
           user: null,
           token: null,
           expiresAt: null,
         });
-        localStorage.removeItem("auth-storage"); // Clear the storage on logout
+        localStorage.removeItem("auth-storage");
       },
     }),
     {

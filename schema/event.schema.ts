@@ -29,3 +29,25 @@ export const eventSchema = z.object({
 });
 
 export type Event = z.infer<typeof eventSchema>;
+
+// ====== CREATE EVENT SCHEMA
+
+export const createEventSchema = z.object({
+  title: z.string().nonempty("Title is required"),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  imageUrl: z
+    .string()
+    .url("Must be a valid URL")
+    .nonempty("Image URL is required"),
+  startDateTime: z.date(),
+  endDateTime: z.date(),
+  price: z.string(),
+  isFree: z.boolean(),
+  url: z.string().url().optional(),
+  slots: z.number().int().positive("Must be a positive number"),
+  category: z.object({
+    _id: z.string(),
+    name: z.string(),
+  }),
+});
