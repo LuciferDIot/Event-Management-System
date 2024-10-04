@@ -19,10 +19,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+import useFetchCategories from "@/hooks/useFetchCategories";
 import { createEvent } from "@/lib/actions/event.actions";
-import { eventSchema } from "@/schema/event.schema";
-import { ResponseStatus } from "@/types";
+import { createEventSchema } from "@/schema/event.schema";
+import { EventData, ResponseStatus } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@radix-ui/react-select";
 import { CircleX } from "lucide-react";
 import Image from "next/image"; // Import the Next.js Image component
 import { useRef, useState } from "react";
@@ -32,13 +40,19 @@ import { z } from "zod";
 
 export default function CreateEventForm() {
   const { token } = useAuth();
-  const [imagePreview, setImagePreview] = useState<string | null>(null); // For storing the preview
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null); // For storing the uploaded file
+  const { user } = useAuth();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+
+  const [newCategory, setNewCategory] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState<string>("");
+
+  const { categories, createNewCategory } = useFetchCategories(); // For storing the uploaded file
 
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Reference for file input
 
-  const form = useForm<z.infer<typeof eventSchema>>({
-    resolver: zodResolver(eventSchema),
+  const form = useForm<z.infer<typeof createEventSchema>>({
+    resolver: zodResolver(createEventSchema),
     defaultValues: {
       isFree: false,
       startDateTime: new Date(),
@@ -72,16 +86,27 @@ export default function CreateEventForm() {
     }
   };
 
-  async function onSubmit(values: z.infer<typeof eventSchema>) {
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent form submission
+    if (newCategoryName.trim()) {
+      await createNewCategory(newCategoryName);
+      setNewCategoryName(""); // Clear input after creation
+    }
+  };
+
+  async function onSubmit(values: z.infer<typeof createEventSchema>) {
     try {
       if (!token) {
         toast.error("Please login to create an event");
         return;
       }
 
-      // You would need to handle the file upload logic here, like sending the file to your backend or cloud storage.
-
-      const response = await createEvent(values, token);
+      const newEvent: EventData = {
+        ...values,
+        category: JSON.parse(JSON.stringify(values.category)),
+        organizer: JSON.parse(JSON.stringify(user)),
+      };
+      const response = await createEvent(newEvent, token);
       if (response.status === ResponseStatus.Success) {
         toast.success("Event created successfully");
         form.reset();
@@ -215,6 +240,40 @@ export default function CreateEventForm() {
                 </FormItem>
               )}
             />
+            {/* Category Dropdown */}
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <Select
+                onValueChange={(value) =>
+                  form.setValue("category", JSON.parse(value))
+                }
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem
+                      key={category.id}
+                      value={JSON.stringify(category)}
+                    >
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="create-new">
+                    <Input
+                      placeholder="Create new category"
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                    />
+                    <Button onClick={handleCreateCategory}>Create</Button>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
 
             <FormItem>
               <FormLabel>Upload Image</FormLabel>
