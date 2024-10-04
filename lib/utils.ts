@@ -15,8 +15,8 @@ export function cn(...inputs: ClassValue[]) {
 
 export const formatDateTime = (dateString: Date) => {
   const dateTimeOptions: Intl.DateTimeFormatOptions = {
-    weekday: "short", // abbreviated weekday name (e.g., 'Mon')
-    month: "short", // abbreviated month name (e.g., 'Oct')
+    weekday: "long", // full weekday name (e.g., 'Monday')
+    month: "long", // full month name (e.g., 'October')
     day: "numeric", // numeric day of the month (e.g., '25')
     hour: "numeric", // numeric hour (e.g., '8')
     minute: "numeric", // numeric minute (e.g., '30')
@@ -24,8 +24,8 @@ export const formatDateTime = (dateString: Date) => {
   };
 
   const dateOptions: Intl.DateTimeFormatOptions = {
-    weekday: "short", // abbreviated weekday name (e.g., 'Mon')
-    month: "short", // abbreviated month name (e.g., 'Oct')
+    weekday: "long", // full weekday name (e.g., 'Monday')
+    month: "long", // full month name (e.g., 'October')
     year: "numeric", // numeric year (e.g., '2023')
     day: "numeric", // numeric day of the month (e.g., '25')
   };
@@ -52,9 +52,9 @@ export const formatDateTime = (dateString: Date) => {
   );
 
   return {
-    dateTime: formattedDateTime,
-    dateOnly: formattedDate,
-    timeOnly: formattedTime,
+    dateTime: formattedDateTime, // e.g., 'Date & Time: Mon, Oct 25, 8:30 PM'
+    dateOnly: formattedDate, // e.g., 'Date: Monday, October 25, 2023'
+    timeOnly: formattedTime, // e.g., 'Time: 8:30 PM'
   };
 };
 

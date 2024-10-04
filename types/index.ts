@@ -59,8 +59,8 @@ export interface IEvent extends Document {
   isFree: boolean;
   url?: string;
   slots: number;
-  category: { _id: string; name: string };
-  organizer: { _id: string; firstName: string; lastName: string };
+  category: ICategory;
+  organizer: IUser;
 }
 
 export interface IUserEvent extends Document {
@@ -88,14 +88,8 @@ export interface EventData {
   isFree?: boolean;
   url?: string; // Optional valid URL
   slots?: number; // Optional, defaults to 100
-  category: {
-    name: string; // The category name to search for or create
-  };
-  organizer: {
-    _id: string; // ID of the user who is organizing the event
-    firstName: string;
-    lastName: string;
-  };
+  category: ICategory;
+  organizer: IUser;
 }
 
 // ====== USER-EVENT PARAMS

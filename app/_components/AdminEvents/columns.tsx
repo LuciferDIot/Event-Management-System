@@ -44,11 +44,14 @@ export const eventColumns: ColumnDef<IEvent>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Slots
+          Tickets
           <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
       );
     },
+    cell: ({ row }) => (
+      <span className="w-full h-full flex-center">{row.original.slots}</span>
+    ),
   },
 
   {
@@ -73,15 +76,27 @@ export const eventColumns: ColumnDef<IEvent>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Time
+          Start Time
           <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
       );
     },
-    cell: ({ row }) =>
-      `${formatDateTime(row.original.startDateTime)} ${formatDateTime(
-        row.original.endDateTime
-      )}}`,
+    cell: ({ row }) => formatDateTime(row.original.startDateTime).dateTime,
+  },
+  {
+    accessorKey: "endDateTime",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          End Time
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => formatDateTime(row.original.endDateTime).dateTime,
   },
   {
     accessorKey: "price",
@@ -98,14 +113,19 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     },
     cell: ({ row }) => {
       const isFree = row.original.isFree;
-      return isFree ? (
-        <span
-          className={`px-2 py-1 rounded-md text-xs font-medium "bg-blue-100 text-blue-800"`}
-        >
-          Free
-        </span>
-      ) : (
-        formatPrice(row.original.price)
+
+      return (
+        <div className="w-full h-full flex-center">
+          {isFree ? (
+            <span
+              className={`px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800`}
+            >
+              Free
+            </span>
+          ) : (
+            formatPrice(row.original.price)
+          )}
+        </div>
       );
     },
   },
@@ -117,7 +137,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Status
+          Category
           <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
       );
@@ -126,8 +146,21 @@ export const eventColumns: ColumnDef<IEvent>[] = [
   },
   {
     accessorKey: "organizer",
-    header: "Actions",
-    cell: ({ row }) =>
-      `${row.original.organizer.firstName} ${row.original.organizer.lastName}`,
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Organizer
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      console.log(row);
+
+      return `${row.original.organizer.email}}`;
+    },
   },
 ];
