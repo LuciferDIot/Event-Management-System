@@ -25,6 +25,7 @@ export const createEvent = async (
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse;
   }
+  console.log(eventData);
 
   try {
     const parsedData = eventSchema.parse(eventData);
@@ -52,7 +53,7 @@ export const createEvent = async (
       status: ResponseStatus.Success,
       message: "Event created successfully",
       code: 200,
-      field: newEvent,
+      field: JSON.parse(JSON.stringify(newEvent)),
     };
   } catch (error) {
     return handleError(error);
@@ -114,7 +115,7 @@ export const getAllEvents = async (
       status: ResponseStatus.Success,
       message: "All events fetched successfully",
       code: 200,
-      field: events,
+      field: JSON.parse(JSON.stringify(events)),
       totalCount: totalEvents,
       totalPages: Math.ceil(totalEvents / limit),
       currentPage: page,
@@ -159,7 +160,7 @@ export const getUserEvents = async (
       status: ResponseStatus.Success,
       message: "Events fetched successfully",
       code: 200,
-      field: events,
+      field: JSON.parse(JSON.stringify(events)),
       totalCount: totalEvents,
       totalPages: Math.ceil(totalEvents / limit),
       currentPage: page,

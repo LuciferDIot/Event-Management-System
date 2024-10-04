@@ -37,7 +37,7 @@ export const createCategory = async (
       status: ResponseStatus.Success,
       message: "Category created successfully",
       code: 200,
-      field: newCategory,
+      field: JSON.parse(JSON.stringify(newCategory)),
     };
   } catch (error) {
     return handleError(error);
@@ -57,7 +57,7 @@ export const getAllCategories = async (): Promise<
       status: ResponseStatus.Success,
       message: "Categories fetched successfully",
       code: 200,
-      field: categories,
+      field: JSON.parse(JSON.stringify(categories)),
     };
   } catch (error) {
     return handleError(error);

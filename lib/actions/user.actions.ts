@@ -23,20 +23,16 @@ export const logInUser = async (
   try {
     await connectToDatabase();
 
-    const user = await User.findOne({
+    const user: IUser | null = await User.findOne({
       $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
     });
 
     if (user && user.isActive) {
       if (await bcrypt.compare(password.trim(), user.password)) {
-        const token = await generateToken({
-          userId: user._id,
-          email: user.email,
-          role: user.role,
-          username: user.username,
-        });
+        const token = await generateToken(JSON.parse(JSON.stringify(user)));
 
-        console.log(token);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, ...userWithoutPassword } = user.toObject();
 
         return {
           status: ResponseStatus.Success,
@@ -45,12 +41,7 @@ export const logInUser = async (
           field: JSON.parse(
             JSON.stringify({
               token,
-              user: {
-                _id: user._id,
-                email: user.email,
-                username: user.username,
-                role: user.role,
-              },
+              user: userWithoutPassword,
             })
           ),
         };

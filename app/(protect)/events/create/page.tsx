@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -25,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ROUTES } from "@/data";
 import { useAuth } from "@/hooks/useAuth";
 import useFetchCategories from "@/hooks/useFetchCategories";
 import { createEvent } from "@/lib/actions/event.actions";
@@ -32,7 +34,8 @@ import { createEventSchema } from "@/schema/event.schema";
 import { EventData, ResponseStatus } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleX } from "lucide-react";
-import Image from "next/image"; // Import the Next.js Image component
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -41,15 +44,10 @@ import { z } from "zod";
 export default function CreateEventForm() {
   const { token } = useAuth();
   const { user } = useAuth();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-
-  const [newCategory, setNewCategory] = useState("");
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { categories, createNewCategory } = useFetchCategories();
   const [newCategoryName, setNewCategoryName] = useState<string>("");
-
-  const { categories, createNewCategory } = useFetchCategories(); // For storing the uploaded file
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null); // Reference for file input
 
   const form = useForm<z.infer<typeof createEventSchema>>({
     resolver: zodResolver(createEventSchema),
@@ -62,27 +60,29 @@ export default function CreateEventForm() {
 
   const {
     formState: { errors },
+    setValue,
+    watch,
   } = form;
 
-  // Handle image upload and preview
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const imagePreview = watch("imageUrl");
+
+  // Handle image upload and convert to Base64
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploadedFile(file); // Store the file
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string); // Set preview to file's data URL
+        setValue("imageUrl", reader.result as string); // Set the Base64 string in the form
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Clear image preview, uploaded file, and reset file input
+  // Clear image preview and reset file input
   const handleRemoveImage = () => {
-    setImagePreview(null);
-    setUploadedFile(null);
+    setValue("imageUrl", "");
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Clear the file input field
+      fileInputRef.current.value = "";
     }
   };
 
@@ -103,14 +103,16 @@ export default function CreateEventForm() {
 
       const newEvent: EventData = {
         ...values,
+        price: values.isFree ? "" : String(values.price),
         category: JSON.parse(JSON.stringify(values.category)),
         organizer: JSON.parse(JSON.stringify(user)),
       };
+      console.log(newEvent);
       const response = await createEvent(newEvent, token);
       if (response.status === ResponseStatus.Success) {
         toast.success("Event created successfully");
         form.reset();
-        setImagePreview(null); // Reset the image preview after form submission
+        router.push(ROUTES.EVENTS);
       } else {
         toast.error(response.message || "Failed to create event");
       }
@@ -119,6 +121,10 @@ export default function CreateEventForm() {
       toast.error("An error occurred during event creation");
     }
   }
+  console.log(errors);
+
+  // Watch the isFree checkbox value
+  const isFree = watch("isFree");
 
   return (
     <Form {...form}>
@@ -141,9 +147,7 @@ export default function CreateEventForm() {
                   <FormControl>
                     <Input placeholder="Enter event title" {...field} />
                   </FormControl>
-                  {errors.title?.message && (
-                    <FormMessage>{errors.title.message}</FormMessage>
-                  )}
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -160,6 +164,7 @@ export default function CreateEventForm() {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -173,6 +178,7 @@ export default function CreateEventForm() {
                   <FormControl>
                     <Input placeholder="Enter location" {...field} />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -195,6 +201,7 @@ export default function CreateEventForm() {
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -217,37 +224,81 @@ export default function CreateEventForm() {
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
+
+            <div className="w-full h-full flex items-start gap-4">
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Enter event price"
+                        {...field}
+                        disabled={isFree} // Disable if isFree is checked
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value); // Parse the input value as a float
+                          field.onChange(isNaN(value) ? undefined : value); // Set the value, handle NaN case
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="slots"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tickets/ Slots</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Enter ticket/ slots"
+                        {...field}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value, 10); // Parse the input value as an integer
+                          field.onChange(isNaN(value) ? undefined : value); // Set the value, handle NaN case
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
-              name="price"
+              name="isFree"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
+                <FormItem className="flex items-center">
                   <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter event price"
-                      {...field}
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  {errors.price?.message && (
-                    <FormMessage>{errors.price.message}</FormMessage>
-                  )}
+                  <FormLabel className="ml-2">Is this event free?</FormLabel>
                 </FormItem>
               )}
             />
 
-            <div className="w-full h-full flex items-end gap-4">
+            <div className="w-full h-full flex items-start gap-4">
               {/* Category Dropdown */}
               <FormField
                 control={form.control}
                 name="category"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex-1">
                     <FormLabel>Category</FormLabel>
                     <Select
                       onValueChange={(value) => {
@@ -275,15 +326,20 @@ export default function CreateEventForm() {
                   </FormItem>
                 )}
               />
-              <FormItem className="flex items-end gap-2">
-                <Input
-                  type="text"
-                  placeholder="New category name"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  className="input-class" // Add appropriate styling class
-                />
-                <Button onClick={handleCreateCategory}>Create</Button>
+
+              {/* New Category Input */}
+              <FormItem className="flex-1">
+                <FormLabel>Add New Category</FormLabel>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input
+                      placeholder="Enter new category"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                    />
+                  </FormControl>
+                  <Button onClick={handleCreateCategory}>Add Category</Button>
+                </div>
               </FormItem>
             </div>
 
@@ -295,6 +351,12 @@ export default function CreateEventForm() {
                 accept="image/*"
                 onChange={handleImageChange}
               />
+              {
+                // Display error message if image upload fails
+                errors.imageUrl?.message && (
+                  <FormMessage>{errors.imageUrl.message}</FormMessage>
+                )
+              }
             </FormItem>
 
             {imagePreview && (
@@ -302,15 +364,15 @@ export default function CreateEventForm() {
                 <FormLabel>Image Preview</FormLabel>
                 <div className="relative w-fit h-fit border border-gray-300 rounded-md overflow-hidden">
                   <CircleX
-                    className="absolute right-[2%] top-[2%] w-4 h-4 bg-white text-red-500 cursor-pointer"
-                    onClick={handleRemoveImage} // Clear image preview and file on click
+                    className="rounded-full absolute right-[2%] top-[2%] w-4 h-4 bg-white text-red-500 cursor-pointer"
+                    onClick={handleRemoveImage}
                   />
                   <Image
                     src={imagePreview}
                     alt="Image preview"
                     width={200}
                     height={200}
-                    objectFit="cover"
+                    className="object-cover"
                   />
                 </div>
               </FormItem>
