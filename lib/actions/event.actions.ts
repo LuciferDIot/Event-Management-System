@@ -8,7 +8,7 @@ import {
   IResponse,
   ResponseStatus,
   UserRole,
-} from "@/types"; // Ensure the path is correct
+} from "@/types";
 import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
 import Category from "../database/models/category.model";
@@ -19,21 +19,17 @@ import { handleError } from "../utils";
 // Create a new event (protected)
 export const createEvent = async (
   eventData: EventData,
-  token: string // Expect the JWT token to be passed
+  token: string
 ): Promise<IResponse<IEvent | string | jwt.JwtPayload>> => {
-  // Verify the token before proceeding
   const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
-    return tokenResponse; // Return unauthorized if token is invalid
+    return tokenResponse;
   }
 
   try {
-    // Validate the input using Zod
     const parsedData = eventSchema.parse(eventData);
-
     await connectToDatabase();
 
-    // Check if category exists; if not, create it
     const categoryExists = await Category.findOne({
       name: parsedData.category.name,
     });
@@ -67,12 +63,11 @@ export const createEvent = async (
 export const updateEventStatus = async (
   eventId: string,
   newStatus: EventDue,
-  token: string // Expect the JWT token to be passed
+  token: string
 ): Promise<IResponse<string | jwt.JwtPayload>> => {
-  // Verify the token before proceeding
   const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
-    return tokenResponse; // Return unauthorized if token is invalid
+    return tokenResponse;
   }
 
   try {
@@ -91,31 +86,28 @@ export const updateEventStatus = async (
 
 // Get all events (not protected) with pagination
 export const getAllEvents = async (
-  page: number = 1, // Default to the first page
-  limit: number = 10, // Default limit for number of events per page
-  token: string // Expect the JWT token to be passed
+  page: number = 1,
+  limit: number = 10,
+  token?: string | null
 ): Promise<IResponse<IEvent[] | string | jwt.JwtPayload>> => {
-  // Verify the token before proceeding
   let findQuery = {};
-  const isAdmintokenResponse = await verifyToken(token, [UserRole.Admin]);
-  if (isAdmintokenResponse.status === ResponseStatus.Error) {
-    findQuery = {
-      isFree: true,
-    };
+  if (token) {
+    const isAdminTokenResponse = await verifyToken(token, [UserRole.Admin]);
+    if (isAdminTokenResponse.status === ResponseStatus.Error) {
+      findQuery = {
+        isFree: true,
+      };
+    }
   }
 
   try {
     await connectToDatabase();
-
-    // Calculate the number of documents to skip
     const skip = (page - 1) * limit;
 
-    // Fetch the paginated events
     const events: IEvent[] = await Event.find(findQuery)
       .skip(skip)
       .limit(limit);
 
-    // Get the total count of events, applying the same filter as the findQuery
     const totalEvents = await Event.countDocuments(findQuery);
 
     return {
@@ -135,23 +127,20 @@ export const getAllEvents = async (
 // Get events based on user ID and status (protected) with pagination
 export const getUserEvents = async (
   userId: string,
-  token: string, // Expect the JWT token to be passed
-  page: number = 1, // Default to the first page
-  limit: number = 10 // Default limit for number of events per page
+  token: string,
+  page: number = 1,
+  limit: number = 10
 ): Promise<IResponse<IEvent[] | string | jwt.JwtPayload>> => {
-  // Verify the token before proceeding
   const tokenResponse = await verifyToken(token, [
     UserRole.Admin,
     UserRole.User,
   ]);
   if (tokenResponse.status === ResponseStatus.Error) {
-    return tokenResponse; // Return unauthorized if token is invalid
+    return tokenResponse;
   }
 
   try {
     await connectToDatabase();
-
-    // Calculate the number of documents to skip
     const skip = (page - 1) * limit;
 
     const events: IEvent[] = await Event.find({
@@ -161,7 +150,6 @@ export const getUserEvents = async (
       .skip(skip)
       .limit(limit);
 
-    // Get total count of events for calculating total pages
     const totalEvents = await Event.countDocuments({
       organizer: userId,
       status: { $in: ["Pending", "Overdue"] },

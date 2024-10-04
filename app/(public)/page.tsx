@@ -13,7 +13,7 @@ export default function Home() {
   } else if (user.role === UserRole.User) {
     return <UserEvents token={token} user={user} />;
   } else if (user.role === UserRole.Admin) {
-    return <AdminEvents token={token} user={user} />;
+    return <AdminEvents />;
   } else {
     return <FreeEvents />;
   }

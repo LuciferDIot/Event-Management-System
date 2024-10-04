@@ -3,4 +3,5 @@ export const ROUTES = {
   USERS: "/users",
   EVENTS: "/",
   ABOUT: "/about",
+  CREATE_EVENT: "/events/create",
 };
