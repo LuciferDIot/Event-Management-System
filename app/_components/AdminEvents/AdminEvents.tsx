@@ -23,7 +23,9 @@ function AdminEvents() {
   const handleRowClick = (event: IEvent) => {
     console.log("Row clicked:", event);
     if (isMountedUsers) {
-      setDialogContent(<CreateUserEvents event={event} user={nonAdminUsers} />);
+      setDialogContent(
+        <CreateUserEvents event={event} users={nonAdminUsers} />
+      );
     } else {
       toast.error("Users not loaded");
     }
