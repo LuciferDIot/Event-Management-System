@@ -42,7 +42,9 @@ function CreateUserEvents({ event, users }: Props) {
 
   const removeUser = (userToRemove: IUser) => {
     // Filter out the user to remove
-    setAddedUsers((prev) => prev.filter((user) => user.id !== userToRemove.id));
+    setAddedUsers((prev) =>
+      prev.filter((user) => user._id !== userToRemove._id)
+    );
   };
 
   return (
