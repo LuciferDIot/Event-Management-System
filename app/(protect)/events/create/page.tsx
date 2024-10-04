@@ -1,6 +1,4 @@
-type Props = {};
-
-function CreateEvent({}: Props) {
+function CreateEvent() {
   return <div>CreateEvent</div>;
 }
 
