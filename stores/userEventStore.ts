@@ -1,23 +1,23 @@
-// src/stores/useEventStore.ts
-import { IEvent } from "@/types";
+// src/stores/userEventStore.ts
+import { IUserEvent } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface EventStore {
-  events: IEvent[];
-  setEvents: (events: IEvent[]) => void;
+interface UserEventStore {
+  userEvents: IUserEvent[];
+  setUserEvents: (events: IUserEvent[]) => void;
   hasHydrated: boolean; // Add a hydration flag
 }
 
-export const useEventStore = create<EventStore>()(
+export const useUserEventStore = create<UserEventStore>()(
   persist(
     (set) => ({
-      events: [],
-      setEvents: (events) => set({ events }),
+      userEvents: [],
+      setUserEvents: (events) => set({ userEvents: events }),
       hasHydrated: false, // Initialize the hydration flag
     }),
     {
-      name: "event-storage", // Unique name for the storage
+      name: "user-event-storage", // Unique name for the storage
       onRehydrateStorage: () => (state) => {
         // Set hasHydrated to true after rehydration
         if (state) state.hasHydrated = true;

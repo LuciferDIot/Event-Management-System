@@ -104,10 +104,9 @@ export function removeKeysFromQuery({
 }
 
 import mongoose from "mongoose";
+import { handleServerError } from "./server-utils";
 
 export const handleError = (error: unknown): IResponse<string> => {
-  console.error(error); // Log the actual error for debugging purposes
-
   // Handle Mongoose validation errors (e.g., schema validation errors)
   if (error instanceof mongoose.Error.ValidationError) {
     return {
@@ -116,6 +115,9 @@ export const handleError = (error: unknown): IResponse<string> => {
       field: Object.keys(error.errors)[0],
     };
   }
+
+  const serverError = handleServerError(error);
+  if (serverError) return serverError;
 
   if (error instanceof Error) {
     // MongoDB duplicate key error

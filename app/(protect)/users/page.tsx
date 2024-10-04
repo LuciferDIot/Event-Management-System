@@ -32,6 +32,7 @@ function Users() {
           columns={userColumns}
           data={users} // Pass users from Zustand store to the DataTable
           filterPlaceholder={"Search by email..."}
+          filterColumn="email"
           button={{
             label: "Add user",
             onClick: () => {

@@ -1,7 +1,7 @@
 // src/hooks/useFetchEvents.ts
 import { ROUTES } from "@/data";
 import { useAuth } from "@/hooks/useAuth";
-import { getAllEvents, getUserEvents } from "@/lib/actions/event.actions"; // Adjust the import path as necessary
+import { getAllEvents, getUserEvents } from "@/lib/actions/event.actions";
 import { handleError } from "@/lib/utils";
 import { useEventStore } from "@/stores/eventsStore";
 import { ResponseStatus } from "@/types";
@@ -10,12 +10,17 @@ import { useEffect, useState } from "react";
 
 const useFetchEvents = () => {
   const router = useRouter();
-  const { setEvents, events } = useEventStore();
+  const { setEvents, events, hasHydrated } = useEventStore(); // Access hasHydrated
   const { token } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   const fetchEvents = async (page: number = 1, limit: number = 10) => {
+    if (!token) {
+      setErrorMessage("Token is undefined.");
+      return;
+    }
+
     try {
       const response = await getAllEvents(page, limit, token);
 
@@ -42,13 +47,13 @@ const useFetchEvents = () => {
     page: number = 1,
     limit: number = 10
   ) => {
-    try {
-      if (!token) {
-        setErrorMessage("Token is undefined.");
-        router.push(ROUTES.LOGIN);
+    if (!token) {
+      setErrorMessage("Token is undefined.");
+      router.push(ROUTES.LOGIN);
+      return;
+    }
 
-        return;
-      }
+    try {
       const response = await getUserEvents(userId, token, page, limit);
 
       if (response.status === ResponseStatus.Success) {
@@ -70,10 +75,11 @@ const useFetchEvents = () => {
   };
 
   useEffect(() => {
-    // Set the component as mounted
-    setIsMounted(true);
-    fetchEvents(); // Fetch events initially
-  }, [token, setEvents]);
+    if (hasHydrated) {
+      fetchEvents(); // Fetch events only after hydration
+      setIsMounted(true); // Set the component as mounted after fetching
+    }
+  }, [hasHydrated, token]); // Run effect when hasHydrated or token changes
 
   return { events, errorMessage, isMounted, fetchEvents, fetchUserEvents };
 };

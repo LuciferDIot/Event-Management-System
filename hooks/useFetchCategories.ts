@@ -5,12 +5,13 @@ import {
   getAllCategories,
 } from "@/lib/actions/category.actions";
 import { handleError } from "@/lib/utils";
-import { useCategoryStore } from "@/stores/useCategoryStore";
+import { useCategoryStore } from "@/stores/useCategoryStore"; // Updated import path
 import { ICategory, ResponseStatus } from "@/types";
 import { useEffect, useState } from "react";
 
 const useFetchCategories = () => {
-  const { categories, setCategories, addCategory } = useCategoryStore(); // Zustand store
+  const { categories, setCategories, addCategory, hasHydrated } =
+    useCategoryStore(); // Access hasHydrated
   const { token } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -68,9 +69,12 @@ const useFetchCategories = () => {
   };
 
   useEffect(() => {
-    setIsMounted(true);
-    fetchCategories();
-  }, []);
+    if (hasHydrated) {
+      // Check if the store has hydrated before fetching categories
+      fetchCategories(); // Fetch categories
+      setIsMounted(true); // Set the component as mounted after fetching
+    }
+  }, [hasHydrated]); // Run effect when hasHydrated changes
 
   return {
     categories,
