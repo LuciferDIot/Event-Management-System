@@ -6,8 +6,8 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
+import { DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -22,7 +22,6 @@ import useFetchUserEvents from "@/hooks/useFetchUserEvents";
 import { IEvent, IUser } from "@/types";
 import { X } from "lucide-react";
 import { useState } from "react";
-import { toast } from "react-toastify";
 
 type Props = {
   event: IEvent;
@@ -40,14 +39,13 @@ function CreateUserEvents({ event, users }: Props) {
   const [selectedUser, setSelectedUser] = useState<string>("");
 
   if (!isMounted) {
-    toast.error("User events not loaded");
     return null;
   }
 
   const handleUserSelect = async (user: IUser) => {
     try {
       // Add the user event through the hook
-      await addUserEvent(user.id, event.id);
+      await addUserEvent(user._id, event._id);
       setAddedUsers((prev) => [...prev, user]);
       setSelectedUser(""); // Reset the select input
       setFilteredUsers(users); // Reset the filtered users
@@ -59,9 +57,9 @@ function CreateUserEvents({ event, users }: Props) {
   const handleRemoveUser = async (userToRemove: IUser) => {
     try {
       // Remove the user event through the hook
-      await deleteUserEvent(userToRemove.id, event.id);
+      await deleteUserEvent(userToRemove._id, event._id);
       setAddedUsers((prev) =>
-        prev.filter((user) => user.id !== userToRemove.id)
+        prev.filter((user) => user._id !== userToRemove._id)
       );
     } catch (error) {
       console.error("Error removing user event:", error);
@@ -71,7 +69,8 @@ function CreateUserEvents({ event, users }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Allocate Users to {`'${event.title}'`}</CardTitle>
+        <DialogTitle>Allocate Users to {`'${event.title}'`}</DialogTitle>
+
         <CardDescription>
           Search by username and select the user to add
         </CardDescription>
