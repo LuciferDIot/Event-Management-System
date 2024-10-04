@@ -58,7 +58,11 @@ export function DataTableToolbar<TData>({
       <DataTableViewOptions table={table} />
       {button && (
         <DialogTrigger asChild onClick={button.onClick}>
-          <Button variant="default" className="h-8" onClick={button.onClick}>
+          <Button
+            variant="default"
+            className="h-8 bg-black"
+            onClick={button.onClick}
+          >
             {button.label}
           </Button>
         </DialogTrigger>

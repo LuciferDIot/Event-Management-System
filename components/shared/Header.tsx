@@ -22,7 +22,7 @@ export default function Header() {
           />
         </div>
         <div>
-          <ol className="flex gap-6 items-end">
+          <ol className="flex gap-6 items-center">
             {user?.role === UserRole.Admin && (
               <NavigationMenuItem route={ROUTES.USERS} title="Users" />
             )}
@@ -30,10 +30,14 @@ export default function Header() {
             <NavigationMenuItem route={ROUTES.ABOUT} title="About us" />
             <li>
               {isLoggedIn ? (
-                <Button onClick={logout}>Logout</Button>
+                <Button onClick={logout} className="h-8 bg-black">
+                  Logout
+                </Button>
               ) : (
                 <Button>
-                  <Link href={ROUTES.LOGIN}>Login</Link>
+                  <Link href={ROUTES.LOGIN} className="h-8 bg-black">
+                    Login
+                  </Link>
                 </Button>
               )}
             </li>
