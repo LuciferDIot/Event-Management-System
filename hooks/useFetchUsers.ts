@@ -87,7 +87,7 @@ const useFetchUsers = () => {
     if (hasHydrated) {
       fetchUsers();
       fetchNonAdminUsers();
-      setIsMounted(true); // Set the component as mounted after fetching
+      setIsMounted(true);
     }
   }, [hasHydrated, token]); // Run effect when hasHydrated or token changes
 

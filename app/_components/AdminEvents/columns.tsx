@@ -157,10 +157,6 @@ export const eventColumns: ColumnDef<IEvent>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => {
-      console.log(row);
-
-      return `${row.original.organizer.email}}`;
-    },
+    cell: ({ row }) => `${row.original.organizer.email}`,
   },
 ];

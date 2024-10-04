@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ROUTES } from "@/data";
 import useFetchEvents from "@/hooks/useEventActions";
 import useFetchUsers from "@/hooks/useFetchUsers";
+import { IEvent } from "@/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -18,6 +19,15 @@ function AdminEvents() {
   const [dialogContent, setDialogContent] = useState<React.ReactNode | null>(
     null
   );
+
+  const handleRowClick = (event: IEvent) => {
+    console.log("Row clicked:", event);
+    if (isMountedUsers) {
+      setDialogContent(<CreateUserEvents event={event} user={nonAdminUsers} />);
+    } else {
+      toast.error("Users not loaded");
+    }
+  };
 
   // Render nothing if not mounted to avoid hydration error
   if (!isMounted) {
@@ -37,15 +47,7 @@ function AdminEvents() {
           filterColumn="title"
           data={events} // Pass users from Zustand store to the DataTable
           filterPlaceholder={"Search by title..."}
-          onRowClick={(event) => {
-            if (isMountedUsers) {
-              setDialogContent(
-                <CreateUserEvents event={event} user={nonAdminUsers} />
-              );
-            } else {
-              toast.error("Users not loaded");
-            }
-          }}
+          onRowClick={handleRowClick}
           button={{
             label: "Add event",
             onClick: () => {
