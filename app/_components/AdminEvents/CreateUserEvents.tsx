@@ -30,14 +30,8 @@ type Props = {
 };
 
 function CreateUserEvents({ event, users }: Props) {
-  const {
-    addUserEvent,
-    deleteUserEvent,
-    errorMessage,
-    fetchUserEvents,
-    isMounted,
-    userEvents,
-  } = useFetchUserEvents();
+  const { addUserEvent, deleteUserEvent, errorMessage, isMounted, userEvents } =
+    useFetchUserEvents();
 
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [addedUsers, setAddedUsers] = useState<IUser[]>(
