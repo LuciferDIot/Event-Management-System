@@ -107,7 +107,7 @@ export default function CreateEventForm() {
         category: JSON.parse(JSON.stringify(values.category)),
         organizer: JSON.parse(JSON.stringify(user)),
       };
-      console.log(newEvent);
+
       const response = await createEvent(newEvent, token);
       if (response.status === ResponseStatus.Success) {
         toast.success("Event created successfully");

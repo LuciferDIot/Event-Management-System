@@ -29,9 +29,7 @@ function CategoryBadge({ category }: Props) {
     index !== -1 ? getColorForCategory(index) : "bg-gray-500 text-white"; // Default color
 
   return (
-    <Badge
-      className={`text-sm font-semibold px-3 py-1 rounded-md ${categoryColorClass}`}
-    >
+    <Badge className={`text-xs px-3 py-1 rounded-md ${categoryColorClass}`}>
       {category.name}
     </Badge>
   );

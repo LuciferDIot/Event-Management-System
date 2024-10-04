@@ -107,7 +107,10 @@ export const getAllEvents = async (
 
     const events: IEvent[] = await Event.find(findQuery)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate("category")
+      .populate("organizer")
+      .select("-password");
 
     const totalEvents = await Event.countDocuments(findQuery);
 
