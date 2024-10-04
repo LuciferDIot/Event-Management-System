@@ -20,14 +20,12 @@ export const createUserEvent = async (
   eventId: string,
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<IUserEvent | string | jwt.JwtPayload>> => {
-  // Verify the token before proceeding
   const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
 
   try {
-    // Validate the input using Zod
     userEventSchema.parse({ user: userId, event: eventId });
 
     await connectToDatabase();
@@ -44,14 +42,11 @@ export const createUserEvent = async (
   }
 };
 
-// Get user events (protected) with pagination
-export const getUserEvents = async (
-  userId: string,
-  page: number = 1, // Default to the first page
-  limit: number = 10, // Default limit for number of user events per page
+// Get user events by event ID (protected)
+export const getUserEventsByEventId = async (
+  eventId: string,
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
-  // Verify the token before proceeding
   const tokenResponse = await verifyToken(token, [UserRole.User]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
@@ -60,16 +55,83 @@ export const getUserEvents = async (
   try {
     await connectToDatabase();
 
-    // Calculate the number of documents to skip
+    // Fetch user events by event ID
+    const userEvents: IUserEvent[] = await UserEvent.find({
+      event: eventId,
+    }).populate("user");
+
+    return {
+      status: ResponseStatus.Success,
+      message: "User events fetched successfully",
+      code: 200,
+      field: userEvents,
+    };
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+// Remove user event (protected)
+export const removeUserEvent = async (
+  userId: string,
+  eventId: string,
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<string | jwt.JwtPayload>> => {
+  const tokenResponse = await verifyToken(token, [UserRole.Admin]);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
+  try {
+    await connectToDatabase();
+
+    // Find and remove the user event based on user ID and event ID
+    const deletedUserEvent = await UserEvent.findOneAndDelete({
+      user: userId,
+      event: eventId,
+    });
+
+    if (!deletedUserEvent) {
+      return {
+        status: ResponseStatus.Error,
+        message: "User event not found",
+        code: 404,
+      };
+    }
+
+    return {
+      status: ResponseStatus.Success,
+      message: "User event removed successfully",
+      code: 200,
+      field: "Success",
+    };
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+// Get user events (protected) with pagination
+export const getUserEvents = async (
+  userId: string,
+  page: number = 1, // Default to the first page
+  limit: number = 10, // Default limit for number of user events per page
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
+  const tokenResponse = await verifyToken(token, [UserRole.User]);
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
+  try {
+    await connectToDatabase();
+
     const skip = (page - 1) * limit;
 
-    // Fetch the paginated user events
     const userEvents: IUserEvent[] = await UserEvent.find({ user: userId })
       .skip(skip)
       .limit(limit)
       .populate("event");
 
-    // Get total count of user events for calculating total pages
     const totalUserEvents = await UserEvent.countDocuments({ user: userId });
 
     return {
@@ -92,7 +154,6 @@ export const updateUserEventStatus = async (
   newStatus: UserEventStatus,
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<string | jwt.JwtPayload>> => {
-  // Verify the token before proceeding
   const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid

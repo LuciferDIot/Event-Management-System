@@ -39,9 +39,13 @@ function AdminEvents() {
   return (
     <Dialog>
       <div className="py-10">
-        {errorMessage && (
+        {errorMessage ? (
           <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">
             <p>{errorMessage}</p>
+          </div>
+        ) : (
+          <div className="bg-blue-100 text-black-700 p-4 mb-4 rounded">
+            <p>Select each row to link users with their respective events.</p>
           </div>
         )}
         <DataTable

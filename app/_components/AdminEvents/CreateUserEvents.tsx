@@ -18,9 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useFetchUserEvents from "@/hooks/useFetchUserEvents";
 import { IEvent, IUser } from "@/types";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 type Props = {
   event: IEvent;
@@ -28,23 +30,48 @@ type Props = {
 };
 
 function CreateUserEvents({ event, users }: Props) {
+  const {
+    addUserEvent,
+    deleteUserEvent,
+    errorMessage,
+    fetchUserEvents,
+    isMounted,
+    userEvents,
+  } = useFetchUserEvents();
+
   const [filteredUsers, setFilteredUsers] = useState(users);
-  const [addedUsers, setAddedUsers] = useState<IUser[]>([]);
+  const [addedUsers, setAddedUsers] = useState<IUser[]>(
+    userEvents.map((userEvent) => userEvent.user)
+  );
   const [selectedUser, setSelectedUser] = useState<string>("");
 
-  const handleUserSelect = (user: IUser) => {
-    // Add the selected user to the addedUsers state
-    setAddedUsers((prev) => [...prev, user]);
-    // Reset the select input and search input
-    setSelectedUser("");
-    setFilteredUsers(users); // Reset filtered users to show all
+  if (!isMounted) {
+    toast.error("User events not loaded");
+    return null;
+  }
+
+  const handleUserSelect = async (user: IUser) => {
+    try {
+      // Add the user event through the hook
+      await addUserEvent(user.id, event.id);
+      setAddedUsers((prev) => [...prev, user]);
+      setSelectedUser(""); // Reset the select input
+      setFilteredUsers(users); // Reset the filtered users
+    } catch (error) {
+      console.error("Error adding user event:", error);
+    }
   };
 
-  const removeUser = (userToRemove: IUser) => {
-    // Filter out the user to remove
-    setAddedUsers((prev) =>
-      prev.filter((user) => user._id !== userToRemove._id)
-    );
+  const handleRemoveUser = async (userToRemove: IUser) => {
+    try {
+      // Remove the user event through the hook
+      await deleteUserEvent(userToRemove.id, event.id);
+      setAddedUsers((prev) =>
+        prev.filter((user) => user.id !== userToRemove.id)
+      );
+    } catch (error) {
+      console.error("Error removing user event:", error);
+    }
   };
 
   return (
@@ -97,7 +124,7 @@ function CreateUserEvents({ event, users }: Props) {
             <Button
               key={user.id}
               variant="outline"
-              onClick={() => removeUser(user)}
+              onClick={() => handleRemoveUser(user)}
               className="h-8 px-2 lg:px-3 flex items-center mr-2 mb-2"
             >
               {user.username}
@@ -105,6 +132,9 @@ function CreateUserEvents({ event, users }: Props) {
             </Button>
           ))}
         </div>
+
+        {/* Error handling */}
+        {errorMessage && <div className="text-red-500">{errorMessage}</div>}
       </CardContent>
     </Card>
   );
