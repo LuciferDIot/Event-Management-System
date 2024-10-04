@@ -18,19 +18,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/hooks/useAuth";
-import useFetchCategories from "@/hooks/useFetchCategories";
-import { createEvent } from "@/lib/actions/event.actions";
-import { createEventSchema } from "@/schema/event.schema";
-import { EventData, ResponseStatus } from "@/types";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@radix-ui/react-select";
+} from "@/components/ui/select";
+import { useAuth } from "@/hooks/useAuth";
+import useFetchCategories from "@/hooks/useFetchCategories";
+import { createEvent } from "@/lib/actions/event.actions";
+import { createEventSchema } from "@/schema/event.schema";
+import { EventData, ResponseStatus } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleX } from "lucide-react";
 import Image from "next/image"; // Import the Next.js Image component
 import { useRef, useState } from "react";
@@ -240,40 +240,52 @@ export default function CreateEventForm() {
                 </FormItem>
               )}
             />
-            {/* Category Dropdown */}
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <Select
-                onValueChange={(value) =>
-                  form.setValue("category", JSON.parse(value))
-                }
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem
-                      key={category.id}
-                      value={JSON.stringify(category)}
+
+            <div className="w-full h-full flex items-end gap-4">
+              {/* Category Dropdown */}
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        const selectedCategory = JSON.parse(value);
+                        field.onChange(selectedCategory);
+                      }}
                     >
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="create-new">
-                    <Input
-                      placeholder="Create new category"
-                      value={newCategory}
-                      onChange={(e) => setNewCategory(e.target.value)}
-                    />
-                    <Button onClick={handleCreateCategory}>Create</Button>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem
+                            key={category._id}
+                            value={JSON.stringify(category)}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormItem className="flex items-end gap-2">
+                <Input
+                  type="text"
+                  placeholder="New category name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="input-class" // Add appropriate styling class
+                />
+                <Button onClick={handleCreateCategory}>Create</Button>
+              </FormItem>
+            </div>
 
             <FormItem>
               <FormLabel>Upload Image</FormLabel>
