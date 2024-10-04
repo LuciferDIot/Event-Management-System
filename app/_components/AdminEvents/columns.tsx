@@ -113,14 +113,19 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     },
     cell: ({ row }) => {
       const isFree = row.original.isFree;
-      return isFree ? (
-        <span
-          className={`px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800`}
-        >
-          Free
-        </span>
-      ) : (
-        formatPrice(row.original.price)
+
+      return (
+        <div className="w-full h-full flex-center">
+          {isFree ? (
+            <span
+              className={`px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800`}
+            >
+              Free
+            </span>
+          ) : (
+            formatPrice(row.original.price)
+          )}
+        </div>
       );
     },
   },
