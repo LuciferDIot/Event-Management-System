@@ -26,6 +26,7 @@ export default function Header() {
             <NavigationMenuItem route={ROUTES.USERS} title="Users" />
           )}
           <NavigationMenuItem route={ROUTES.EVENTS} title="Events" />
+          <NavigationMenuItem route={ROUTES.ABOUT} title="About us" />
           <li>
             {isLoggedIn ? (
               <Button onClick={logout}>Logout</Button>
