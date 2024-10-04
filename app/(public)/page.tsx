@@ -1,7 +1,7 @@
 "use client";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types";
-import AdminEvents from "../_components/AdminEvents";
+import AdminEvents from "../_components/AdminEvents/AdminEvents";
 import FreeEvents from "../_components/FreeEvents";
 import UserEvents from "../_components/UserEvents";
 

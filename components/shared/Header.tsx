@@ -11,32 +11,34 @@ import { NavigationMenuItem } from "./NavigationMenu";
 export default function Header() {
   const { user, isLoggedIn, logout } = useAuth();
   return (
-    <div className="sticky top-0 shadow-md backdrop-blur-lg z-30 w-full h-[100px] flex justify-evenly items-center">
-      <div>
-        <Image
-          src="/images/logo.svg"
-          alt="Event Sync"
-          width={120}
-          height={24}
-        />
-      </div>
-      <div>
-        <ol className="flex gap-6 items-end">
-          {user?.role === UserRole.Admin && (
-            <NavigationMenuItem route={ROUTES.USERS} title="Users" />
-          )}
-          <NavigationMenuItem route={ROUTES.EVENTS} title="Events" />
-          <NavigationMenuItem route={ROUTES.ABOUT} title="About us" />
-          <li>
-            {isLoggedIn ? (
-              <Button onClick={logout}>Logout</Button>
-            ) : (
-              <Button>
-                <Link href={ROUTES.LOGIN}>Login</Link>
-              </Button>
+    <div className="flex-center sticky top-0 shadow-md backdrop-blur-lg z-30 w-full h-[100px] ">
+      <div className="w-full h-full max-w-screen-xl px-[4%] flex justify-between items-center">
+        <div>
+          <Image
+            src="/images/logo.svg"
+            alt="Event Sync"
+            width={120}
+            height={24}
+          />
+        </div>
+        <div>
+          <ol className="flex gap-6 items-end">
+            {user?.role === UserRole.Admin && (
+              <NavigationMenuItem route={ROUTES.USERS} title="Users" />
             )}
-          </li>
-        </ol>
+            <NavigationMenuItem route={ROUTES.EVENTS} title="Events" />
+            <NavigationMenuItem route={ROUTES.ABOUT} title="About us" />
+            <li>
+              {isLoggedIn ? (
+                <Button onClick={logout}>Logout</Button>
+              ) : (
+                <Button>
+                  <Link href={ROUTES.LOGIN}>Login</Link>
+                </Button>
+              )}
+            </li>
+          </ol>
+        </div>
       </div>
     </div>
   );
