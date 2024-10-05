@@ -88,7 +88,10 @@ export default function ProfileForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8 max-w-[600px] w-full py-[4%]"
+      >
         <Card>
           <CardHeader>
             <CardTitle className="flex justify-between">
@@ -107,7 +110,7 @@ export default function ProfileForm() {
           <CardContent className="space-y-2">
             <Tabs
               defaultValue="username"
-              className="md:w-[600px] sm:w-[400px] flex flex-col gap-4"
+              className="w-full flex flex-col gap-4"
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger
@@ -188,7 +191,9 @@ export default function ProfileForm() {
             </Tabs>
           </CardContent>
           <CardFooter>
-            <Button type="submit">Login</Button>
+            <Button className="w-full" type="submit">
+              Login
+            </Button>
           </CardFooter>
         </Card>
       </form>

@@ -204,7 +204,9 @@ export default function CreateUserForm({
             />
           </CardContent>
           <CardFooter>
-            <Button type="submit">Create User</Button>
+            <Button type="submit" className="w-full">
+              Create User
+            </Button>
           </CardFooter>
         </Card>
       </form>

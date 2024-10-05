@@ -13,6 +13,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -27,6 +28,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -41,6 +43,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -59,6 +62,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -73,6 +77,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -95,6 +100,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -117,6 +123,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -148,6 +155,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -163,6 +171,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           className="w-full flex-center"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}

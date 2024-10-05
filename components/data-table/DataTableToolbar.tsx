@@ -48,7 +48,8 @@ export function DataTableToolbar<TData>({
           <Button
             variant="ghost"
             onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
+            className="px-2 lg:px-3"
+            size={"sm"}
           >
             Reset
             <X className="ml-2 h-4 w-4" />
@@ -58,11 +59,7 @@ export function DataTableToolbar<TData>({
       <DataTableViewOptions table={table} />
       {button && (
         <DialogTrigger asChild onClick={button.onClick}>
-          <Button
-            variant="default"
-            className="h-8 bg-black"
-            onClick={button.onClick}
-          >
+          <Button variant="default" size={"sm"} onClick={button.onClick}>
             {button.label}
           </Button>
         </DialogTrigger>

@@ -128,6 +128,7 @@ function CreateUserEvents({ event, users, updateTable }: Props) {
         <div className="mt-4 flex flex-wrap">
           {addedUsers.map((user) => (
             <Button
+              size={"sm"}
               key={user._id}
               variant="outline"
               onClick={() => handleRemoveUser(user)}

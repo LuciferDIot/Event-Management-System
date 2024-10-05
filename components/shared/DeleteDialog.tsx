@@ -41,6 +41,7 @@ export default function DeleteDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <Button
+            size={"sm"}
             variant="destructive"
             onClick={async () => {
               await task.onClick();

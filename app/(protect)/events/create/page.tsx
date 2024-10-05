@@ -338,7 +338,9 @@ export default function CreateEventForm() {
                       onChange={(e) => setNewCategoryName(e.target.value)}
                     />
                   </FormControl>
-                  <Button onClick={handleCreateCategory}>Add Category</Button>
+                  <Button size={"sm"} onClick={handleCreateCategory}>
+                    Add Category
+                  </Button>
                 </div>
               </FormItem>
             </div>
@@ -378,8 +380,11 @@ export default function CreateEventForm() {
               </FormItem>
             )}
           </CardContent>
+
           <CardFooter>
-            <Button type="submit">Create Event</Button>
+            <Button type="submit" className="w-full">
+              Create Event
+            </Button>
           </CardFooter>
         </Card>
       </form>

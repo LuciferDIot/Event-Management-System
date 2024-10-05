@@ -30,14 +30,12 @@ export default function Header() {
             <NavigationMenuItem route={ROUTES.ABOUT} title="About us" />
             <li>
               {isLoggedIn ? (
-                <Button onClick={logout} className="h-8 bg-black">
+                <Button size={"sm"} onClick={logout}>
                   Logout
                 </Button>
               ) : (
-                <Button>
-                  <Link href={ROUTES.LOGIN} className="h-8 bg-black">
-                    Login
-                  </Link>
+                <Button size={"sm"}>
+                  <Link href={ROUTES.LOGIN}>Login</Link>
                 </Button>
               )}
             </li>
