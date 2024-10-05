@@ -7,7 +7,7 @@ import useFetchEvents from "@/hooks/useEventActions";
 import useFetchUserEvents from "@/hooks/useFetchUserEvents";
 import useFetchUsers from "@/hooks/useFetchUsers";
 import { IEvent, IUserEvent } from "@/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { eventUserColumns } from "./columns";
 
@@ -26,6 +26,10 @@ function EventUsers({
   const [dialogContent, setDialogContent] = useState<React.ReactNode | null>(
     null
   );
+
+  useEffect(() => {
+    setUsersEvent(eventUsers);
+  }, [eventUsers]);
 
   // Render nothing if not mounted to avoid hydration error
   if (!isMounted) {
