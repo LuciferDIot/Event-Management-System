@@ -7,14 +7,14 @@ type Props = {
 };
 // Predefined color palette
 const colors = [
-  "bg-blue-500 text-white",
-  "bg-green-500 text-white",
-  "bg-yellow-500 text-black",
-  "bg-purple-500 text-white",
-  "bg-red-500 text-white",
-  "bg-pink-500 text-white",
-  "bg-indigo-500 text-white",
-  "bg-teal-500 text-white",
+  "bg-blue-100 text-blue-600",
+  "bg-green-100 text-green-600",
+  "bg-yellow-100 text-yellow-600",
+  "bg-purple-100 text-purple-600",
+  "bg-red-100 text-red-600",
+  "bg-pink-100 textpink-600",
+  "bg-indigo-100 textindigo-600",
+  "bg-teal-100 text-teal-600",
 ];
 
 // Function to get color based on index
@@ -30,7 +30,7 @@ function CategoryBadge({ category }: Props) {
 
   return (
     <Badge className={`text-xs px-3 py-1 rounded-md ${categoryColorClass}`}>
-      {category.name}
+      {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
     </Badge>
   );
 }

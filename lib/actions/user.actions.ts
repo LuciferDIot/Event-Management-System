@@ -94,6 +94,12 @@ export const createUser = async (
 
     const newUser = await User.create({
       ...parsedData,
+      firstName:
+        parsedData.firstName.charAt(0).toUpperCase() +
+        parsedData.firstName.slice(1),
+      lastName:
+        parsedData.lastName.charAt(0).toUpperCase() +
+        parsedData.lastName.slice(1),
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = newUser.toObject();
