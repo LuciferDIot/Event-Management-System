@@ -17,16 +17,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useFetchUserEvents from "@/hooks/useFetchUserEvents";
-import { IEvent, IUser } from "@/types";
+import { IEvent, IUser, IUserEvent } from "@/types";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type Props = {
   event: IEvent;
   users: IUser[];
+  updateTable: (c: IUserEvent[]) => void;
 };
 
-function CreateUserEvents({ event, users }: Props) {
+function CreateUserEvents({ event, users, updateTable }: Props) {
   const { addUserEvent, deleteUserEvent, errorMessage, isMounted, eventUsers } =
     useFetchUserEvents({
       eventId: event._id,
@@ -54,7 +55,8 @@ function CreateUserEvents({ event, users }: Props) {
       )
     );
     setAddedUsers(eventUsers.map((userEvent) => userEvent.user));
-  }, [eventUsers, users]);
+    updateTable(eventUsers);
+  }, [eventUsers, updateTable, users]);
 
   if (!isMounted) return null;
 
