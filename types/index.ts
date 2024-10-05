@@ -130,9 +130,13 @@ export interface ILoginResponse {
 
 // ====== JWT TOKEN
 export interface DecodedToken {
-  userId: string;
+  _id: string;
   email: string;
   role: UserRole[];
+  username: string;
+  firstName: string;
+  lastName: string;
+  isActive?: boolean;
 }
 
 // ====== URL QUERY PARAMS

@@ -6,7 +6,13 @@ import { useUserStore } from "@/stores/useUserStore";
 import { IUser, ResponseStatus } from "@/types";
 import { useEffect, useState } from "react";
 
-const useFetchUsers = () => {
+const useFetchUsers = ({
+  all,
+  nonAdmin,
+}: {
+  nonAdmin: boolean;
+  all: boolean;
+}) => {
   const { setUsers, setNonAdminUsers, hasHydrated, nonAdminUsers, users } =
     useUserStore(); // Access hasHydrated
   const { token } = useAuth();
@@ -83,13 +89,17 @@ const useFetchUsers = () => {
   };
 
   useEffect(() => {
-    // Only fetch users if the store has been hydrated
-    if (hasHydrated) {
-      fetchUsers();
-      fetchNonAdminUsers();
+    if (hasHydrated && token && !isMounted) {
+      if (all && users.length === 0) {
+        fetchUsers();
+      }
+      if (nonAdmin && nonAdminUsers.length === 0) {
+        fetchNonAdminUsers();
+      }
       setIsMounted(true);
+      console.log("Fetching users...");
     }
-  }, [hasHydrated, token]); // Run effect when hasHydrated or token changes
+  }, [hasHydrated, token, all, nonAdmin, users, nonAdminUsers, isMounted]); // Added dependencies for all and nonAdmin options
 
   return {
     errorMessage,

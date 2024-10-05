@@ -26,7 +26,7 @@ export const UserActions = ({ row }: { row: Row<IUser> }) => {
   const adminToken = row.original.token;
   const [alertOpen, setAlertOpen] = useState(false);
 
-  const { fetchUsers } = useFetchUsers();
+  const { fetchUsers } = useFetchUsers({ all: true, nonAdmin: false });
 
   const showActionToggle = (open: boolean) => {
     setAlertOpen(open);

@@ -45,7 +45,7 @@ export default function CreateUserForm({
 }) {
   const router = useRouter();
   const { token } = useAuth();
-  const { fetchUsers } = useFetchUsers();
+  const { fetchUsers } = useFetchUsers({ all: true, nonAdmin: false });
 
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
