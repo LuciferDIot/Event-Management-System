@@ -11,12 +11,18 @@ import { useUserEventStore } from "@/stores/userEventStore";
 import { IUserEvent, ResponseStatus } from "@/types";
 import { useEffect, useState } from "react";
 
-const useFetchUserEvents = (userId?: string, eventId?: string) => {
+const useFetchUserEvents = ({
+  eventId,
+  userId,
+}: {
+  userId?: string;
+  eventId?: string;
+}) => {
   const { setUserEvents, userEvents, hasHydrated } = useUserEventStore(); // Access hasHydrated
   const { token } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
-  const [eventUsers, setEventUsers] = useState<IUserEvent[]>([]); // State for event users
+  const [eventUsers, setEventUsers] = useState<IUserEvent[]>([]);
 
   const fetchUserEvents = async (
     userId: string,
@@ -29,7 +35,7 @@ const useFetchUserEvents = (userId?: string, eventId?: string) => {
     }
 
     try {
-      const response = await getUserEvents(userId, page, limit, token);
+      const response = await getUserEvents(userId, token, page, limit);
 
       if (response.status === ResponseStatus.Success) {
         if (response.field && Array.isArray(response.field)) {
@@ -60,7 +66,7 @@ const useFetchUserEvents = (userId?: string, eventId?: string) => {
     }
 
     try {
-      const response = await getEventUsers(eventId, page, limit, token); // Call new action
+      const response = await getEventUsers(eventId, token, page, limit); // Call new action
 
       if (response.status === ResponseStatus.Success) {
         if (response.field && Array.isArray(response.field)) {
@@ -90,7 +96,7 @@ const useFetchUserEvents = (userId?: string, eventId?: string) => {
       const response = await createUserEvent(userId, eventId, token);
 
       if (response.status === ResponseStatus.Success) {
-        await fetchUserEvents(userId);
+        await fetchEventUsers(eventId);
       } else {
         setErrorMessage(response.message);
       }
@@ -113,7 +119,7 @@ const useFetchUserEvents = (userId?: string, eventId?: string) => {
       const response = await removeUserEvent(userId, eventId, token);
 
       if (response.status === ResponseStatus.Success) {
-        await fetchUserEvents(userId); // Refresh the user events after deletion
+        await fetchEventUsers(eventId);
       } else {
         setErrorMessage(response.message);
       }

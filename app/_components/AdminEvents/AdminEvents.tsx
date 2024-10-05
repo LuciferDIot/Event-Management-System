@@ -21,7 +21,6 @@ function AdminEvents() {
   );
 
   const handleRowClick = (event: IEvent) => {
-    console.log("Row clicked:", event);
     if (isMountedUsers) {
       setDialogContent(
         <CreateUserEvents event={event} users={nonAdminUsers} />
@@ -62,7 +61,11 @@ function AdminEvents() {
           }}
         />
       </div>
-      {dialogContent && <DialogContent>{dialogContent}</DialogContent>}
+      {dialogContent && (
+        <DialogContent aria-describedby={"CreateUserEvents"}>
+          {dialogContent}
+        </DialogContent>
+      )}
     </Dialog>
   );
 }

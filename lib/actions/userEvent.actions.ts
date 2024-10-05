@@ -23,7 +23,7 @@ export const createUserEvent = async (
 ): Promise<IResponse<IUserEvent | string | jwt.JwtPayload>> => {
   const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
-    return tokenResponse; // Return unauthorized if token is invalid
+    return tokenResponse;
   }
 
   try {
@@ -120,11 +120,14 @@ export const removeUserEvent = async (
 // Get user events (protected) with pagination
 export const getUserEvents = async (
   userId: string,
+  token: string, // Expect the JWT token to be passed
   page: number = 1, // Default to the first page
-  limit: number = 10, // Default limit for number of user events per page
-  token: string // Expect the JWT token to be passed
+  limit: number = 10 // Default limit for number of user events per page
 ): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
-  const tokenResponse = await verifyToken(token, [UserRole.User]);
+  const tokenResponse = await verifyToken(token, [
+    UserRole.User,
+    UserRole.Admin,
+  ]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
@@ -160,11 +163,14 @@ export const getUserEvents = async (
 // Get users for a specific event (protected) with pagination
 export const getEventUsers = async (
   eventId: string,
+  token: string, // Expect the JWT token to be passed
   page: number = 1, // Default to the first page
-  limit: number = 10, // Default limit for number of users per page
-  token: string // Expect the JWT token to be passed
+  limit: number = 10 // Default limit for number of users per page
 ): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
-  const tokenResponse = await verifyToken(token, [UserRole.User]);
+  const tokenResponse = await verifyToken(token, [
+    UserRole.User,
+    UserRole.Admin,
+  ]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
