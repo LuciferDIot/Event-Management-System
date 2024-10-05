@@ -157,7 +157,13 @@ export const getUserEvents = async (
     const userEvents: IUserEvent[] = await UserEvent.find({ user: userId })
       .skip(skip)
       .limit(limit)
-      .populate("event");
+      .populate({
+        path: "event",
+        populate: [
+          { path: "organizer", select: "-password" }, // Fetch organizer details without password
+          { path: "category" }, // Fetch category details
+        ],
+      });
 
     const totalUserEvents = await UserEvent.countDocuments({ user: userId });
 

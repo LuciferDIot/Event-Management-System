@@ -68,7 +68,6 @@ export interface IUserEvent extends Document {
   user: IUser; // Reference to User ID
   event: IEvent; // Reference to Event ID
   status?: UserEventStatus; // Optional field
-  note?: string; // Optional field
 }
 
 // ====== CATEGORY PARAMS

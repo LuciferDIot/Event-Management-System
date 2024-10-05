@@ -14,20 +14,25 @@ import { useEffect, useState } from "react";
 const useFetchUserEvents = ({
   eventId,
   userId,
+  page = 1, // Default page set to 1
+  limit = 6, // Default limit
 }: {
   userId?: string;
   eventId?: string;
+  page?: number;
+  limit?: number;
 }) => {
   const { setUserEvents, userEvents, hasHydrated } = useUserEventStore(); // Access hasHydrated
   const { token } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [eventUsers, setEventUsers] = useState<IUserEvent[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchUserEvents = async (
     userId: string,
-    page: number = 1,
-    limit: number = 10
+    page: number,
+    limit: number
   ) => {
     if (!token) {
       setErrorMessage("Token is undefined.");
@@ -36,10 +41,10 @@ const useFetchUserEvents = ({
 
     try {
       const response = await getUserEvents(userId, token, page, limit);
-
       if (response.status === ResponseStatus.Success) {
         if (response.field && Array.isArray(response.field)) {
           setUserEvents(response.field);
+          setTotalPages(response.totalPages ?? 1);
         } else {
           throw new Error("Invalid response field.");
         }
@@ -48,7 +53,6 @@ const useFetchUserEvents = ({
       }
     } catch (error) {
       const errorRecreate = handleError(error);
-      console.error(error);
       setErrorMessage(
         errorRecreate.message || "An error occurred while fetching user events."
       );
@@ -136,7 +140,7 @@ const useFetchUserEvents = ({
     if (hasHydrated) {
       // Only fetch user events if hasHydrated is true
       if (userId) {
-        fetchUserEvents(userId);
+        fetchUserEvents(userId, page, limit);
       }
       if (eventId) {
         fetchEventUsers(eventId); // Fetch event users if eventId is provided
@@ -154,6 +158,7 @@ const useFetchUserEvents = ({
     fetchEventUsers, // Expose fetchEventUsers
     addUserEvent,
     deleteUserEvent,
+    totalPages,
   };
 };
 

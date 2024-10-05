@@ -10,7 +10,6 @@ const Table = React.forwardRef<
     className="relative w-full overflow-auto  
     [&::-webkit-scrollbar]:w-2
     [&::-webkit-scrollbar]:h-2
-  [&::-webkit-scrollbar-track]:bg-gray-100
   [&::-webkit-scrollbar-track]:rounded-full
   [&::-webkit-scrollbar-thumb]:bg-gray-300
   [&::-webkit-scrollbar-thumb]:rounded-full
