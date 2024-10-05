@@ -18,8 +18,6 @@ function UserEvents({ user }: Props) {
     page,
   });
 
-  console.log(userEvents);
-
   const handlePageChange = (newPage: number) => {
     setPage(newPage); // Update the page when pagination is triggered
   };

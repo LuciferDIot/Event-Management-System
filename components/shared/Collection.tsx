@@ -1,6 +1,6 @@
+import { IUserEvent } from "@/types";
 import Card from "./Card";
 import Pagination from "./Pagination";
-import { IUserEvent } from "@/types";
 
 type CollectionProps = {
   data: IUserEvent[];

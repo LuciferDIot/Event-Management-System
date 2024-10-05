@@ -5,7 +5,9 @@ import { persist } from "zustand/middleware";
 
 interface UserEventStore {
   userEvents: IUserEvent[];
+  categoryUserEvents: IUserEvent[];
   setUserEvents: (events: IUserEvent[]) => void;
+  setCategoryUserEvents: (events: IUserEvent[]) => void;
   hasHydrated: boolean; // Add a hydration flag
 }
 
@@ -14,6 +16,8 @@ export const useUserEventStore = create<UserEventStore>()(
     (set) => ({
       userEvents: [],
       setUserEvents: (events) => set({ userEvents: events }),
+      categoryUserEvents: [],
+      setCategoryUserEvents: (events) => set({ userEvents: events }),
       hasHydrated: false, // Initialize the hydration flag
     }),
     {

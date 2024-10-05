@@ -1,4 +1,5 @@
 import CategoryBadge from "@/app/_components/CategoryBadge";
+import { ROUTES } from "@/data";
 import { cn, formatDateTime } from "@/lib/utils";
 import { IUserEvent } from "@/types";
 import Link from "next/link";
@@ -10,22 +11,32 @@ type CardProps = {
   hidePrice?: boolean;
 };
 
-const Card = ({ userEvent: { event }, hidePrice }: CardProps) => {
+const Card = ({ userEvent: { event, _id }, hidePrice }: CardProps) => {
   return (
-    <div className="group relative flex min-h-[380px] w-full max-w-[350px] flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg md:min-h-[438px]">
+    <div
+      className="group relative flex min-h-[380px] w-full 
+    max-w-[350px] flex-col overflow-hidden rounded-xl bg-white 
+    shadow-md transition-all hover:shadow-lg md:min-h-[438px]"
+    >
       <Link
-        href={`/events/${event._id}`}
+        href={ROUTES.VIEW_EVENT + "/" + _id}
         style={{ backgroundImage: `url(${event.imageUrl})` }}
         className="flex-center flex-grow bg-gray-50 bg-cover bg-center text-grey-500"
       />
 
-      <div className="flex min-h-[230px] flex-col gap-3 p-5 md:gap-4">
+      <div className="flex min-h-[150px] flex-col gap-3 p-5 md:gap-4">
+        <Link href={ROUTES.VIEW_EVENT + "/" + _id}>
+          <h1 className="font-bold line-clamp-2 flex-1 text-black hover:underline transition-none">
+            {event.title.toUpperCase()}
+          </h1>
+        </Link>
+
         {!hidePrice && (
           <div className="flex gap-2">
             <Badge
               variant={event.isFree ? "secondary" : "destructive"}
               className={cn(
-                `text-xs px-3 py-1 rounded-md `,
+                `text-xs px-3 py-1 rounded-md font-normal`,
                 event.isFree
                   ? "bg-green-100 text-green-600"
                   : "bg-red-100 text-red-600"
@@ -37,29 +48,21 @@ const Card = ({ userEvent: { event }, hidePrice }: CardProps) => {
           </div>
         )}
 
-        <Link href={`/events/${event._id}`}>
-          <p className="p-medium-16 md:p-medium-20 line-clamp-2 flex-1 text-black">
-            {event.title.charAt(0).toUpperCase() + event.title.slice(1)}
-          </p>
-        </Link>
-
-        <div className="flex-between w-full">
-          <p className="p-medium-14 md:p-medium-16 text-grey-600">
-            {event.organizer.firstName.charAt(0).toUpperCase() +
-              event.organizer.firstName.slice(1)}{" "}
-            {event.organizer.lastName.charAt(0).toUpperCase() +
-              event.organizer.lastName.slice(1)}
+        <div className="flex-between w-full text-sm text-grey-500">
+          <p>
+            Organized by{" "}
+            <span className="font-bold">
+              {event.organizer.firstName.charAt(0).toUpperCase() +
+                event.organizer.firstName.slice(1)}{" "}
+              {event.organizer.lastName.charAt(0).toUpperCase() +
+                event.organizer.lastName.slice(1)}
+            </span>
           </p>
 
           <p className="flex justify-between text-sm text-grey-500">
-            <span>
-              start:{" "}
-              {formatDateTime(event.startDateTime, event.endDateTime).dateTime}
-            </span>
-            <span>
-              end:{" "}
-              {formatDateTime(event.endDateTime, event.startDateTime).dateTime}
-            </span>
+            From{" "}
+            {formatDateTime(event.startDateTime, event.endDateTime).dateTime} to{" "}
+            {formatDateTime(event.endDateTime, event.startDateTime).dateTime}
           </p>
         </div>
       </div>
