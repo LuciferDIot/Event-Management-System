@@ -23,7 +23,7 @@ export const createUserEvent = async (
 ): Promise<IResponse<IUserEvent | string | jwt.JwtPayload>> => {
   const tokenResponse = await verifyToken(token, [UserRole.Admin]);
   if (tokenResponse.status === ResponseStatus.Error) {
-    return tokenResponse; // Return unauthorized if token is invalid
+    return tokenResponse;
   }
 
   try {
@@ -31,7 +31,23 @@ export const createUserEvent = async (
 
     await connectToDatabase();
 
+    // Check if there is already a userEvent with the same userId and eventId
+    const existingUserEvent = await UserEvent.findOne({
+      user: userId,
+      event: eventId,
+    });
+
+    if (existingUserEvent) {
+      return {
+        status: ResponseStatus.Error,
+        message: "User-event relationship already exists",
+        code: 400,
+      };
+    }
+
+    // Create a new userEvent if it doesn't exist
     const userEvent = await UserEvent.create({ user: userId, event: eventId });
+
     return {
       status: ResponseStatus.Success,
       message: "User-event relationship created successfully",
@@ -76,7 +92,7 @@ export const getUserEventsByEventId = async (
   }
 };
 
-// Remove user event (protected)
+// Remove all user events with the same user and event (protected)
 export const removeUserEvent = async (
   userId: string,
   eventId: string,
@@ -90,23 +106,24 @@ export const removeUserEvent = async (
   try {
     await connectToDatabase();
 
-    // Find and remove the user event based on user ID and event ID
-    const deletedUserEvent = await UserEvent.findOneAndDelete({
+    // Find and remove all user events based on user ID and event ID
+    const result = await UserEvent.deleteMany({
       user: userId,
       event: eventId,
     });
 
-    if (!deletedUserEvent) {
+    // Check if any user events were deleted
+    if (result.deletedCount === 0) {
       return {
         status: ResponseStatus.Error,
-        message: "User event not found",
+        message: "No user events found for the specified user and event",
         code: 404,
       };
     }
 
     return {
       status: ResponseStatus.Success,
-      message: "User event removed successfully",
+      message: "User events removed successfully",
       code: 200,
       field: "Success",
     };
@@ -120,11 +137,14 @@ export const removeUserEvent = async (
 // Get user events (protected) with pagination
 export const getUserEvents = async (
   userId: string,
+  token: string, // Expect the JWT token to be passed
   page: number = 1, // Default to the first page
-  limit: number = 10, // Default limit for number of user events per page
-  token: string // Expect the JWT token to be passed
+  limit: number = 10 // Default limit for number of user events per page
 ): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
-  const tokenResponse = await verifyToken(token, [UserRole.User]);
+  const tokenResponse = await verifyToken(token, [
+    UserRole.User,
+    UserRole.Admin,
+  ]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
@@ -160,11 +180,14 @@ export const getUserEvents = async (
 // Get users for a specific event (protected) with pagination
 export const getEventUsers = async (
   eventId: string,
+  token: string, // Expect the JWT token to be passed
   page: number = 1, // Default to the first page
-  limit: number = 10, // Default limit for number of users per page
-  token: string // Expect the JWT token to be passed
+  limit: number = 10 // Default limit for number of users per page
 ): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
-  const tokenResponse = await verifyToken(token, [UserRole.User]);
+  const tokenResponse = await verifyToken(token, [
+    UserRole.User,
+    UserRole.Admin,
+  ]);
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }

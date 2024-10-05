@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,76 +17,91 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useFetchUserEvents from "@/hooks/useFetchUserEvents";
-import { IEvent, IUser } from "@/types";
+import { IEvent, IUser, IUserEvent } from "@/types";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   event: IEvent;
   users: IUser[];
+  updateTable: (c: IUserEvent[]) => void;
 };
 
-function CreateUserEvents({ event, users }: Props) {
-  const { addUserEvent, deleteUserEvent, errorMessage, isMounted, userEvents } =
-    useFetchUserEvents();
+function CreateUserEvents({ event, users, updateTable }: Props) {
+  const { addUserEvent, deleteUserEvent, errorMessage, isMounted, eventUsers } =
+    useFetchUserEvents({
+      eventId: event._id,
+    });
 
-  const [filteredUsers, setFilteredUsers] = useState(users);
-  const [addedUsers, setAddedUsers] = useState<IUser[]>(
-    userEvents.map((userEvent) => userEvent.user)
-  );
+  const [filteredUsers, setFilteredUsers] = useState<IUser[]>([]);
+  const [addedUsers, setAddedUsers] = useState<IUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<string>("");
 
-  if (!isMounted) {
-    return null;
-  }
+  // Utility function to handle error logging
+  const logError = (error: unknown, action: string) => {
+    if (error instanceof Error) {
+      console.error(`Error ${action} user event:`, error.message);
+    } else {
+      console.error(`Error ${action} user event:`, error);
+    }
+  };
+
+  // Sync filtered and added users whenever eventUsers or users change
+  useEffect(() => {
+    setFilteredUsers(
+      users.filter(
+        (user) =>
+          !eventUsers.some((userEvent) => userEvent.user._id === user._id)
+      )
+    );
+    setAddedUsers(eventUsers.map((userEvent) => userEvent.user));
+    updateTable(eventUsers);
+  }, [eventUsers, updateTable, users]);
+
+  if (!isMounted) return null;
 
   const handleUserSelect = async (user: IUser) => {
     try {
-      // Add the user event through the hook
       await addUserEvent(user._id, event._id);
-      setAddedUsers((prev) => [...prev, user]);
-      setSelectedUser(""); // Reset the select input
-      setFilteredUsers(users); // Reset the filtered users
+      setSelectedUser(""); // Reset select input
     } catch (error) {
-      console.error("Error adding user event:", error);
+      logError(error, "adding");
     }
   };
 
   const handleRemoveUser = async (userToRemove: IUser) => {
     try {
-      // Remove the user event through the hook
       await deleteUserEvent(userToRemove._id, event._id);
-      setAddedUsers((prev) =>
-        prev.filter((user) => user._id !== userToRemove._id)
-      );
     } catch (error) {
-      console.error("Error removing user event:", error);
+      logError(error, "removing");
     }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const search = e.target.value.toLowerCase();
+    setFilteredUsers(
+      users.filter((user) => user.username.toLowerCase().includes(search))
+    );
   };
 
   return (
     <Card>
       <CardHeader>
         <DialogTitle>Allocate Users to {`'${event.title}'`}</DialogTitle>
-
         <CardDescription>
           Search by username and select the user to add
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Search Input */}
         <Input
           type="text"
           placeholder="Search users"
-          className="w-full h-10 px-3 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          onChange={(e) => {
-            const search = e.target.value.toLowerCase();
-            setFilteredUsers(
-              users.filter((user) =>
-                user.username.toLowerCase().includes(search)
-              )
-            );
-          }}
+          className="w-full h-10 px-3 border rounded-md focus:outline-none focus:ring-2"
+          onChange={handleSearchChange}
         />
+
+        {/* User Select Dropdown */}
         <Select
           onValueChange={(value) => {
             const user = JSON.parse(value) as IUser;
@@ -103,7 +116,7 @@ function CreateUserEvents({ event, users }: Props) {
             <SelectGroup>
               <SelectLabel>Users</SelectLabel>
               {filteredUsers.map((user) => (
-                <SelectItem key={user.id} value={JSON.stringify(user)}>
+                <SelectItem key={user._id} value={JSON.stringify(user)}>
                   {user.username}
                 </SelectItem>
               ))}
@@ -115,7 +128,7 @@ function CreateUserEvents({ event, users }: Props) {
         <div className="mt-4 flex flex-wrap">
           {addedUsers.map((user) => (
             <Button
-              key={user.id}
+              key={user._id}
               variant="outline"
               onClick={() => handleRemoveUser(user)}
               className="h-8 px-2 lg:px-3 flex items-center mr-2 mb-2"
@@ -126,7 +139,7 @@ function CreateUserEvents({ event, users }: Props) {
           ))}
         </div>
 
-        {/* Error handling */}
+        {/* Error message */}
         {errorMessage && <div className="text-red-500">{errorMessage}</div>}
       </CardContent>
     </Card>

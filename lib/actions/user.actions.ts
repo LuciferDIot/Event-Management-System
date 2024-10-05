@@ -302,6 +302,7 @@ export const getAllUsers = async (
       // Fetch the paginated users
       users = await User.find({
         role: { $ne: UserRole.Admin },
+        isActive: true,
       })
         .lean()
         .skip(skip)
@@ -326,6 +327,7 @@ export const getAllUsers = async (
       // Fetch all non-admin users without pagination
       users = await User.find({
         role: { $ne: UserRole.Admin },
+        isActive: true,
       })
         .lean()
         .select("-password");

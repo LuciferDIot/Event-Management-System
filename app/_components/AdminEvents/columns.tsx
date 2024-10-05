@@ -164,6 +164,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
       return (
         <Button
           variant="ghost"
+          className="w-full flex-center"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Organizer
