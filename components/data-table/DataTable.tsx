@@ -78,68 +78,74 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4 w-full h-full">
-      <DataTableToolbar
-        filterColumn={filterColumn}
-        table={table}
-        filterPlaceholder={filterPlaceholder}
-        button={button}
-      />
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
+    <div
+      className="w-full h-full rounded-xl bg-white 
+    shadow-md transition-all hover:shadow-lg p-5 flex flex-col 
+    justify-between gap-4"
+    >
+      <div className="space-y-4">
+        <DataTableToolbar
+          filterColumn={filterColumn}
+          table={table}
+          filterPlaceholder={filterPlaceholder}
+          button={button}
+        />
+        <div className="rounded-md border mt-0">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <DialogTrigger key={row.id} asChild>
+                    <TableRow
+                      data-state={row.getIsSelected() && "selected"}
+                      onClick={() => {
+                        if (onRowClick) {
+                          onRowClick(row.original);
+                        }
+                      }}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
                           )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <DialogTrigger key={row.id} asChild>
-                  <TableRow
-                    data-state={row.getIsSelected() && "selected"}
-                    onClick={() => {
-                      if (onRowClick) {
-                        onRowClick(row.original);
-                      }
-                    }}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </DialogTrigger>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </DialogTrigger>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
       <DataTablePagination table={table} />
     </div>

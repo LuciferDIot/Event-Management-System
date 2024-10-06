@@ -7,9 +7,9 @@ const Table = React.forwardRef<
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
   <div
-    className="relative w-full overflow-auto  
+    className="relative w-full overflow-auto h-5/6 flex-1 
     [&::-webkit-scrollbar]:w-2
-    [&::-webkit-scrollbar]:h-2
+    [&::-webkit-scrollbar]:h-1
   [&::-webkit-scrollbar-track]:rounded-full
   [&::-webkit-scrollbar-thumb]:bg-gray-300
   [&::-webkit-scrollbar-thumb]:rounded-full

@@ -262,8 +262,6 @@ export const getUserEventById = async (
   userEventId: string,
   token: string // Expect the JWT token to be passed
 ): Promise<IResponse<IUserEvent | string | jwt.JwtPayload>> => {
-  console.log("Fetching user event by ID:", userEventId);
-
   const tokenResponse = await verifyToken(token, [
     UserRole.User,
     UserRole.Admin,
@@ -296,8 +294,6 @@ export const getUserEventById = async (
         code: 404,
       };
     }
-
-    console.log("User event fetched successfully:", userEvent);
 
     return {
       status: ResponseStatus.Success,
