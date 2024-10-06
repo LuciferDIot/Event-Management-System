@@ -1,11 +1,11 @@
 "use client";
 import { ROUTES } from "@/data";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 import { UserRole } from "@/types";
 import { AlertCircle, Eye, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import AdminEvents from "../_components/AdminEvents/AdminEvents";
-import FreeEvents from "../_components/FreeEvents";
 import UserEvents from "../_components/UserEvents";
 
 export default function Home() {
@@ -13,20 +13,23 @@ export default function Home() {
 
   const renderedContent = () => {
     if (!user || !token) {
-      return <FreeEvents />;
+      return null;
     } else if (user.role === UserRole.User) {
       return <UserEvents token={token} user={user} />;
     } else if (user.role === UserRole.Admin) {
       return <AdminEvents />;
-    } else {
-      return <FreeEvents />;
     }
   };
 
   return (
     <>
       {user?.role !== UserRole.Admin && (
-        <section className="w-full h-full flex-center ">
+        <section
+          className={cn(
+            "w-full flex-center py-[4%]",
+            user?.role !== UserRole.User && "h-full"
+          )}
+        >
           <div className="bg-white dark:bg-gray-900 py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16 lg:px-12">
             <Link
               href={ROUTES.LOGIN}
