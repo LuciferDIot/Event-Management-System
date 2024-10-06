@@ -10,6 +10,9 @@ import {
 } from "@/types";
 import jwt from "jsonwebtoken";
 import { connectToDatabase } from "../database";
+import Category from "../database/models/category.model";
+import Event from "../database/models/event.model";
+import User from "../database/models/user.model";
 import UserEvent from "../database/models/userEvent.model";
 import { verifyToken } from "../jwt";
 import { handleServerError } from "../server-utils";
@@ -77,7 +80,7 @@ export const getUserEventsByEventId = async (
     // Fetch user events by event ID
     const userEvents: IUserEvent[] = await UserEvent.find({
       event: eventId,
-    }).populate("user");
+    }).populate({ path: "user", select: "-password", model: User });
 
     return {
       status: ResponseStatus.Success,
@@ -206,7 +209,7 @@ export const getEventUsers = async (
     const eventUsers: IUserEvent[] = await UserEvent.find({ event: eventId })
       .skip(skip)
       .limit(limit)
-      .populate("user");
+      .populate({ path: "user", select: "-password", model: User });
 
     const totalEventUsers = await UserEvent.countDocuments({ event: eventId });
 
@@ -272,19 +275,19 @@ export const getUserEventById = async (
   }
 
   try {
-    await connectToDatabase(); // Log connection success/failure
-    console.log("Connected to database");
+    await connectToDatabase();
 
     // Fetch the user event by _id
-    const userEvent: IUserEvent | null = await UserEvent.findById(userEventId)
-      .populate({
-        path: "event",
-        populate: [
-          { path: "organizer", select: "-password" }, // Fetch organizer details without password
-          { path: "category" }, // Fetch category details
-        ],
-      })
-      .exec();
+    const userEvent: IUserEvent | null = await UserEvent.findOne({
+      _id: userEventId,
+    }).populate({
+      path: "event",
+      populate: [
+        { path: "organizer", select: "-password", model: User }, // Fetch organizer details without password
+        { path: "category", model: Category }, // Fetch category details
+      ],
+      model: Event,
+    });
 
     if (!userEvent) {
       return {
@@ -336,9 +339,10 @@ export const getUserEventsByCategoryId = async (
       .populate({
         path: "event",
         populate: [
-          { path: "organizer", select: "-password" }, // Fetch organizer details without password
-          { path: "category" }, // Fetch category details
+          { path: "organizer", select: "-password", model: User }, // Fetch organizer details without password
+          { path: "category", model: Category }, // Fetch category details
         ],
+        model: Event,
       })
       .skip((page - 1) * limit) // Skip documents for pagination
       .limit(limit) // Limit the number of documents fetched
