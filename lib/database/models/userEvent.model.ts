@@ -10,7 +10,6 @@ const UserEventSchema = new Schema<IUserEvent>(
       enum: ["Pending", "Completed", "Overdue"],
       default: "Pending",
     }, // Tracking the status of the user's participation
-    note: { type: String }, // Optional note related to the user's participation
   },
   { timestamps: true }
 ); // Automatically manages createdAt and updatedAt fields

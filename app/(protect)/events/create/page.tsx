@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { ROUTES } from "@/data";
 import { useAuth } from "@/hooks/useAuth";
 import useFetchCategories from "@/hooks/useFetchCategories";
@@ -159,7 +160,7 @@ export default function CreateEventForm() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       placeholder="Enter description (optional)"
                       {...field}
                     />
@@ -338,7 +339,9 @@ export default function CreateEventForm() {
                       onChange={(e) => setNewCategoryName(e.target.value)}
                     />
                   </FormControl>
-                  <Button onClick={handleCreateCategory}>Add Category</Button>
+                  <Button size={"sm"} onClick={handleCreateCategory}>
+                    Add Category
+                  </Button>
                 </div>
               </FormItem>
             </div>
@@ -378,8 +381,11 @@ export default function CreateEventForm() {
               </FormItem>
             )}
           </CardContent>
+
           <CardFooter>
-            <Button type="submit">Create Event</Button>
+            <Button type="submit" className="w-full">
+              Create Event
+            </Button>
           </CardFooter>
         </Card>
       </form>

@@ -12,6 +12,7 @@ export const userColumns: ColumnDef<IUser>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -26,6 +27,7 @@ export const userColumns: ColumnDef<IUser>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -41,6 +43,7 @@ export const userColumns: ColumnDef<IUser>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -55,6 +58,7 @@ export const userColumns: ColumnDef<IUser>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -83,6 +87,7 @@ export const userColumns: ColumnDef<IUser>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >

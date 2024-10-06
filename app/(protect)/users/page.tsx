@@ -4,13 +4,14 @@ import CreateUserForm from "@/app/_components/CreateUserForm";
 import { DataTable } from "@/components/data-table/DataTable";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import useFetchUsers from "@/hooks/useFetchUsers";
-import { useUserStore } from "@/stores/useUserStore";
 import { useState } from "react";
 import { userColumns } from "./columns";
 
 function Users() {
-  const { users } = useUserStore(); // Access users from Zustand store
-  const { errorMessage, isMounted } = useFetchUsers();
+  const { errorMessage, isMounted, users } = useFetchUsers({
+    all: true,
+    nonAdmin: false,
+  });
   const [dialogContent, setDialogContent] = useState<React.ReactNode | null>(
     null
   );

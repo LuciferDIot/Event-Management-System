@@ -9,7 +9,11 @@ import {
   UserRole,
 } from "@/types";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import { connectToDatabase } from "../database";
+import Category from "../database/models/category.model";
+import Event from "../database/models/event.model";
+import User from "../database/models/user.model";
 import UserEvent from "../database/models/userEvent.model";
 import { verifyToken } from "../jwt";
 import { handleServerError } from "../server-utils";
@@ -77,7 +81,7 @@ export const getUserEventsByEventId = async (
     // Fetch user events by event ID
     const userEvents: IUserEvent[] = await UserEvent.find({
       event: eventId,
-    }).populate("user");
+    }).populate({ path: "user", select: "-password", model: User });
 
     return {
       status: ResponseStatus.Success,
@@ -157,7 +161,13 @@ export const getUserEvents = async (
     const userEvents: IUserEvent[] = await UserEvent.find({ user: userId })
       .skip(skip)
       .limit(limit)
-      .populate("event");
+      .populate({
+        path: "event",
+        populate: [
+          { path: "organizer", select: "-password" }, // Fetch organizer details without password
+          { path: "category" }, // Fetch category details
+        ],
+      });
 
     const totalUserEvents = await UserEvent.countDocuments({ user: userId });
 
@@ -200,7 +210,7 @@ export const getEventUsers = async (
     const eventUsers: IUserEvent[] = await UserEvent.find({ event: eventId })
       .skip(skip)
       .limit(limit)
-      .populate("user");
+      .populate({ path: "user", select: "-password", model: User });
 
     const totalEventUsers = await UserEvent.countDocuments({ event: eventId });
 
@@ -242,6 +252,134 @@ export const updateUserEventStatus = async (
       field: "Success",
     };
   } catch (error) {
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
+    return handleError(error);
+  }
+};
+
+// Get user event by _id (protected)
+export const getUserEventById = async (
+  userEventId: string,
+  token: string // Expect the JWT token to be passed
+): Promise<IResponse<IUserEvent | string | jwt.JwtPayload>> => {
+  const tokenResponse = await verifyToken(token, [
+    UserRole.User,
+    UserRole.Admin,
+  ]);
+
+  if (tokenResponse.status === ResponseStatus.Error) {
+    console.error("Token verification failed:", tokenResponse.message);
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
+  try {
+    await connectToDatabase();
+
+    // Fetch the user event by _id
+    const userEvent: IUserEvent | null = await UserEvent.findOne({
+      _id: userEventId,
+    }).populate({
+      path: "event",
+      populate: [
+        { path: "organizer", select: "-password", model: User }, // Fetch organizer details without password
+        { path: "category", model: Category }, // Fetch category details
+      ],
+      model: Event,
+    });
+
+    if (!userEvent) {
+      return {
+        status: ResponseStatus.Error,
+        message: "User event not found",
+        code: 404,
+      };
+    }
+
+    return {
+      status: ResponseStatus.Success,
+      message: "User event fetched successfully",
+      code: 200,
+      field: JSON.parse(JSON.stringify(userEvent)),
+    };
+  } catch (error) {
+    console.error(error);
+
+    const serverError = handleServerError(error);
+    if (serverError) return serverError;
+    return handleError(error);
+  }
+};
+
+export const getUserEventsByCategoryId = async (
+  categoryId: string,
+  userEventId: string,
+  userId: string,
+  token: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
+  console.log(token);
+
+  const tokenResponse = await verifyToken(token, [
+    UserRole.User,
+    UserRole.Admin,
+  ]);
+
+  if (tokenResponse.status === ResponseStatus.Error) {
+    return tokenResponse; // Return unauthorized if token is invalid
+  }
+
+  try {
+    await connectToDatabase();
+
+    const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
+
+    // Fetch user events filtered by categoryId with pagination
+    const userEvents: IUserEvent[] = await UserEvent.find({
+      _id: { $ne: userEventId },
+      event: {
+        $in: await Event.find({ category: categoryObjectId }).distinct("_id"),
+      },
+      user: { $in: userId },
+    })
+      .populate({
+        path: "event",
+        populate: [
+          { path: "organizer", select: "-password" }, // Populate organizer without password
+          { path: "category" }, // Populate category
+        ],
+      })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    console.log(userEvents);
+
+    if (!userEvents.length) {
+      return {
+        status: ResponseStatus.Success,
+        message: "No user events found for the specified category",
+        code: 200,
+      };
+    }
+
+    const totalCount = await UserEvent.countDocuments({
+      "event.category": categoryObjectId,
+    });
+
+    const totalPages = Math.ceil(totalCount / limit); // Calculate total pages
+
+    return {
+      status: ResponseStatus.Success,
+      message: "User events fetched successfully",
+      code: 200,
+      field: JSON.parse(JSON.stringify(userEvents)),
+      totalCount,
+      totalPages,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.error("Error fetching user events:", error);
     const serverError = handleServerError(error);
     if (serverError) return serverError;
     return handleError(error);

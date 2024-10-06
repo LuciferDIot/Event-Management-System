@@ -7,6 +7,7 @@ export const ROUTES = {
   ABOUT: "/about",
   CREATE_EVENT: "/events/create",
   USER_EVENTS: "/events",
+  VIEW_EVENT: "/events/view",
 };
 
 export const userEventStatusStyles = {

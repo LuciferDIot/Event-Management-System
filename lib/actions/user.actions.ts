@@ -94,6 +94,12 @@ export const createUser = async (
 
     const newUser = await User.create({
       ...parsedData,
+      firstName:
+        parsedData.firstName.charAt(0).toUpperCase() +
+        parsedData.firstName.slice(1),
+      lastName:
+        parsedData.lastName.charAt(0).toUpperCase() +
+        parsedData.lastName.slice(1),
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = newUser.toObject();
@@ -343,5 +349,48 @@ export const getAllUsers = async (
     const serverError = handleServerError(error);
     if (serverError) return serverError;
     return handleError(error);
+  }
+};
+
+// Method to get user by userId and check if user exists and isActive
+export const getUserByUserId = async (
+  userId: string
+): Promise<IResponse<IUser | string>> => {
+  try {
+    await connectToDatabase();
+
+    const user = await User.findById(userId).lean().select("-password");
+
+    if (!user) {
+      return {
+        status: ResponseStatus.Error,
+        message: "User not found",
+        code: 404,
+        field: "User not found",
+      };
+    }
+
+    if (!user.isActive) {
+      return {
+        status: ResponseStatus.Error,
+        message: "User is deactivated. Please contact the admin.",
+        code: 403,
+        field: "User is deactivated",
+      };
+    }
+
+    return {
+      status: ResponseStatus.Success,
+      message: "User found and is active",
+      code: 200,
+      field: JSON.parse(JSON.stringify(user)),
+    };
+  } catch (error) {
+    return {
+      status: ResponseStatus.Error,
+      message: error instanceof Error ? error.message : "Unknown error",
+      code: 500,
+      field: "Server error",
+    };
   }
 };

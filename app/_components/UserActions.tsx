@@ -26,7 +26,7 @@ export const UserActions = ({ row }: { row: Row<IUser> }) => {
   const adminToken = row.original.token;
   const [alertOpen, setAlertOpen] = useState(false);
 
-  const { fetchUsers } = useFetchUsers();
+  const { fetchUsers } = useFetchUsers({ all: true, nonAdmin: false });
 
   const showActionToggle = (open: boolean) => {
     setAlertOpen(open);
@@ -92,6 +92,7 @@ export const UserActions = ({ row }: { row: Row<IUser> }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="z-10">
           <Button
+            size={"sm"}
             variant="ghost"
             className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
           >
@@ -108,28 +109,40 @@ export const UserActions = ({ row }: { row: Row<IUser> }) => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           {isActive ? (
-            <DropdownMenuItem
-              className="p-[2%] cursor-pointer flex-center rounded-md bg-white text-red-600 mt-2"
-              onClick={handleIsActive}
-            >
-              <EyeOff className="mr-2 h-4 w-4" />
-              Deactivate
+            <DropdownMenuItem className="p-[2%] cursor-pointer flex-center rounded-md bg-white text-red-600 mt-2">
+              <Button
+                size={"sm"}
+                variant={"outline"}
+                className="w-full border-red-600"
+                onClick={handleIsActive}
+              >
+                <EyeOff className="mr-2 h-4 w-4" />
+                Deactivate
+              </Button>
             </DropdownMenuItem>
           ) : (
-            <DropdownMenuItem
-              className="p-[2%] cursor-pointer flex-center rounded-md bg-white text-green-600  mt-2"
-              onClick={handleIsActive}
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Activate
+            <DropdownMenuItem className="p-[2%] cursor-pointer flex-center rounded-md bg-white text-green-600  mt-2">
+              <Button
+                size={"sm"}
+                variant={"outline"}
+                className="w-full border-green-600"
+                onClick={handleIsActive}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                Activate
+              </Button>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem
-            className="p-[2%] cursor-pointer flex-center rounded-md bg-red-600 text-white mt-2"
-            onClick={() => showActionToggle(true)}
-          >
-            <Trash className="mr-2 h-4 w-4" />
-            Remove
+          <DropdownMenuItem className="p-[2%] cursor-pointer flex-center rounded-md mt-2">
+            <Button
+              size={"sm"}
+              variant={"destructive"}
+              className="w-full"
+              onClick={() => showActionToggle(true)}
+            >
+              <Trash className="mr-2 h-4 w-4" />
+              Remove
+            </Button>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
         </DropdownMenuContent>

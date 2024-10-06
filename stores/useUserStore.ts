@@ -22,6 +22,18 @@ export const useUserStore = create<UserStore>()(
     }),
     {
       name: "user-storage",
+      storage: {
+        getItem: (name) => {
+          const value = sessionStorage.getItem(name);
+          return value ? JSON.parse(value) : null; // Parse stringified value
+        },
+        setItem: (name, value) => {
+          sessionStorage.setItem(name, JSON.stringify(value)); // Stringify the value
+        },
+        removeItem: (name) => {
+          sessionStorage.removeItem(name);
+        },
+      },
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.hasHydrated = true; // Set the flag to true after rehydration

@@ -13,6 +13,7 @@ export const eventUserColumns: ColumnDef<IUserEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -28,6 +29,7 @@ export const eventUserColumns: ColumnDef<IUserEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           className="w-full flex-center"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -44,10 +46,53 @@ export const eventUserColumns: ColumnDef<IUserEvent>[] = [
     ),
   },
   {
+    accessorKey: "firstName",
+    header: ({ column }) => {
+      return (
+        <Button
+          size={"sm"}
+          variant="ghost"
+          className="w-full flex-center"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          First Name
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="w-full h-full flex-center">
+        {row.original.user.firstName}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "lastName",
+    header: ({ column }) => {
+      return (
+        <Button
+          size={"sm"}
+          variant="ghost"
+          className="w-full flex-center"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Last Name
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="w-full h-full flex-center">
+        {row.original.user.lastName}
+      </span>
+    ),
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           className="w-full flex-center"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -76,10 +121,5 @@ export const eventUserColumns: ColumnDef<IUserEvent>[] = [
         </div>
       );
     },
-  },
-  {
-    accessorKey: "actions",
-    header: "Actions",
-    // cell: ({ row }) => <UserActions row={row} />,
   },
 ];

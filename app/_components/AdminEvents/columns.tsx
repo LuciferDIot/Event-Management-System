@@ -13,6 +13,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -27,6 +28,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -35,80 +37,11 @@ export const eventColumns: ColumnDef<IEvent>[] = [
         </Button>
       );
     },
-  },
-  {
-    accessorKey: "slots",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Tickets
-          <ArrowUpDown className="ml-2 h-3 w-3" />
-        </Button>
-      );
-    },
     cell: ({ row }) => (
-      <span className="w-full h-full flex-center">{row.original.slots}</span>
-    ),
-  },
-
-  {
-    accessorKey: "location",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Location
-          <ArrowUpDown className="ml-2 h-3 w-3" />
-        </Button>
-      );
-    },
-  },
-  {
-    accessorKey: "startDateTime",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Start Time
-          <ArrowUpDown className="ml-2 h-3 w-3" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <span className="w-full h-full flex-center">
-        {
-          formatDateTime(row.original.startDateTime, row.original.endDateTime)
-            .dateTime
-        }
-      </span>
-    ),
-  },
-  {
-    accessorKey: "endDateTime",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          End Time
-          <ArrowUpDown className="ml-2 h-3 w-3" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <span className="w-full h-full flex-center">
-        {
-          formatDateTime(row.original.startDateTime, row.original.endDateTime)
-            .dateTime
-        }
+      <span className="w-full min-w-[300px] h-full flex-center ">
+        {row.original.description && row.original.description.length > 200
+          ? row.original.description.slice(0, 100)
+          : row.original.description}
       </span>
     ),
   },
@@ -117,6 +50,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -148,6 +82,7 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
@@ -159,10 +94,91 @@ export const eventColumns: ColumnDef<IEvent>[] = [
     cell: ({ row }) => <CategoryBadge category={row.original.category} />,
   },
   {
+    accessorKey: "slots",
+    header: ({ column }) => {
+      return (
+        <Button
+          size={"sm"}
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tickets
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="w-full h-full flex-center">{row.original.slots}</span>
+    ),
+  },
+
+  {
+    accessorKey: "location",
+    header: ({ column }) => {
+      return (
+        <Button
+          size={"sm"}
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Location
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+  },
+  {
+    accessorKey: "startDateTime",
+    header: ({ column }) => {
+      return (
+        <Button
+          size={"sm"}
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Start Time
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="w-full h-full flex-center">
+        {
+          formatDateTime(row.original.startDateTime, row.original.endDateTime)
+            .dateTime
+        }
+      </span>
+    ),
+  },
+  {
+    accessorKey: "endDateTime",
+    header: ({ column }) => {
+      return (
+        <Button
+          size={"sm"}
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          End Time
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <span className="w-full h-full flex-center">
+        {
+          formatDateTime(row.original.startDateTime, row.original.endDateTime)
+            .dateTime
+        }
+      </span>
+    ),
+  },
+  {
     accessorKey: "organizer",
     header: ({ column }) => {
       return (
         <Button
+          size={"sm"}
           variant="ghost"
           className="w-full flex-center"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}

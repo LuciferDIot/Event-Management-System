@@ -13,7 +13,52 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const formatDateTime = (dateString: Date, otherDate?: Date) => {
+export const formatDateTimeNoCompare = (dateString: Date) => {
+  const dateTimeOptions: Intl.DateTimeFormatOptions = {
+    weekday: "short", // abbreviated weekday name (e.g., 'Mon')
+    month: "short", // abbreviated month name (e.g., 'Oct')
+    day: "numeric", // numeric day of the month (e.g., '25')
+    hour: "numeric", // numeric hour (e.g., '8')
+    minute: "numeric", // numeric minute (e.g., '30')
+    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+  };
+
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    weekday: "short", // abbreviated weekday name (e.g., 'Mon')
+    month: "short", // abbreviated month name (e.g., 'Oct')
+    year: "numeric", // numeric year (e.g., '2023')
+    day: "numeric", // numeric day of the month (e.g., '25')
+  };
+
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    hour: "numeric", // numeric hour (e.g., '8')
+    minute: "numeric", // numeric minute (e.g., '30')
+    hour12: true, // use 12-hour clock (true) or 24-hour clock (false)
+  };
+
+  const formattedDateTime: string = new Date(dateString).toLocaleString(
+    "en-US",
+    dateTimeOptions
+  );
+
+  const formattedDate: string = new Date(dateString).toLocaleString(
+    "en-US",
+    dateOptions
+  );
+
+  const formattedTime: string = new Date(dateString).toLocaleString(
+    "en-US",
+    timeOptions
+  );
+
+  return {
+    dateTime: formattedDateTime,
+    dateOnly: formattedDate,
+    timeOnly: formattedTime,
+  };
+};
+
+export const formatDateTime = (inputDate: Date, otherDate?: Date) => {
   const dateOptions: Intl.DateTimeFormatOptions = {
     year: "numeric", // numeric year (e.g., '2023')
     month: "2-digit", // two-digit month (e.g., '10')
@@ -26,12 +71,12 @@ export const formatDateTime = (dateString: Date, otherDate?: Date) => {
     hour12: false, // use 24-hour clock
   };
 
-  const formattedDate: string = new Date(dateString).toLocaleDateString(
+  const formattedDate: string = new Date(inputDate).toLocaleDateString(
     "en-CA", // Using en-CA locale to get 'YYYY/MM/DD' format
     dateOptions
   );
 
-  const formattedTime: string = new Date(dateString).toLocaleTimeString(
+  const formattedTime: string = new Date(inputDate).toLocaleTimeString(
     "en-GB", // Using en-GB locale to ensure 24-hour format
     timeOptions
   );
@@ -43,7 +88,7 @@ export const formatDateTime = (dateString: Date, otherDate?: Date) => {
 
   return {
     dateTime: otherDate
-      ? getTimeDifferenceInDays(new Date(dateString), new Date(otherDate)) < 1
+      ? getTimeDifferenceInDays(new Date(inputDate), new Date(otherDate)) < 1
         ? formattedTime // If only hours differ, show time only
         : formattedDate // If days differ, show date only
       : (() => {

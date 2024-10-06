@@ -16,7 +16,10 @@ function EventUsers({
 }: {
   params: { event_id: string };
 }) {
-  const { isMounted: isMountedUsers, nonAdminUsers } = useFetchUsers();
+  const { isMounted: isMountedUsers, nonAdminUsers } = useFetchUsers({
+    all: true,
+    nonAdmin: true,
+  });
   const { errorMessage, isMounted, events } = useFetchEvents();
   const { eventUsers } = useFetchUserEvents({
     eventId: event_id,
@@ -68,7 +71,7 @@ function EventUsers({
           </div>
         ) : (
           <div className="w-full bg-black bg-opacity-10 text-black-700 p-4 mb-4 rounded">
-            <p>Select each row to link users with their respective events.</p>
+            <p>Select add user to link or remove users to respective event.</p>
           </div>
         )}
         <DataTable
