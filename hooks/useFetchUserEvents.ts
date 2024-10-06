@@ -31,7 +31,7 @@ const useFetchUserEvents = ({
     categoryUserEvents,
     setCategoryUserEvents,
   } = useUserEventStore();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [eventUsers, setEventUsers] = useState<IUserEvent[]>([]);
@@ -192,6 +192,7 @@ const useFetchUserEvents = ({
 
   const fetchUserEventsByCategoryId = async (
     categoryId: string,
+    userEventId: string,
     page: number = 1,
     limit: number = 10
   ) => {
@@ -200,10 +201,16 @@ const useFetchUserEvents = ({
       return;
     }
 
+    if (!user) {
+      setErrorMessage("User ID is undefined.");
+      return;
+    }
+
     try {
-      console.log("response");
       const response = await getUserEventsByCategoryId(
         categoryId,
+        userEventId,
+        user._id,
         token,
         page,
         limit

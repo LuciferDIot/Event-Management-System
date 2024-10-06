@@ -24,7 +24,7 @@ import { toast } from "react-toastify";
 
 function Page({ params: { event_id } }: { params: { event_id: string } }) {
   const router = useRouter();
-  const { token, hasHydrated } = useAuth(); // Destructure hasHydrated
+  const { token, hasHydrated, user } = useAuth(); // Destructure hasHydrated
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [limit] = useState<number>(3);
 
@@ -35,7 +35,9 @@ function Page({ params: { event_id } }: { params: { event_id: string } }) {
     categoryUserEvents,
     fetchUserEventsByCategoryId,
     totalPages,
-  } = useFetchUserEvents({});
+  } = useFetchUserEvents({
+    userId: user?._id,
+  });
 
   useEffect(() => {
     const initiate = async () => {
@@ -61,7 +63,8 @@ function Page({ params: { event_id } }: { params: { event_id: string } }) {
   useEffect(() => {
     if (specificUserEvent?.event.category._id) {
       fetchUserEventsByCategoryId(
-        specificUserEvent.event.category._id as string
+        specificUserEvent.event.category._id,
+        specificUserEvent._id
       );
     }
   }, [specificUserEvent]);

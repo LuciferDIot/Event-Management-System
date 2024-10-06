@@ -313,10 +313,14 @@ export const getUserEventById = async (
 
 export const getUserEventsByCategoryId = async (
   categoryId: string,
+  userEventId: string,
+  userId: string,
   token: string,
   page: number = 1,
   limit: number = 10
 ): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
+  console.log(token);
+
   const tokenResponse = await verifyToken(token, [
     UserRole.User,
     UserRole.Admin,
@@ -333,9 +337,11 @@ export const getUserEventsByCategoryId = async (
 
     // Fetch user events filtered by categoryId with pagination
     const userEvents: IUserEvent[] = await UserEvent.find({
+      _id: { $ne: userEventId },
       event: {
         $in: await Event.find({ category: categoryObjectId }).distinct("_id"),
       },
+      user: { $in: userId },
     })
       .populate({
         path: "event",
