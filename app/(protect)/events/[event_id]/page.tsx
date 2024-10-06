@@ -4,8 +4,8 @@ import CreateUserEvents from "@/app/_components/AdminEvents/CreateUserEvents";
 import { DataTable } from "@/components/data-table/DataTable";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import useFetchEvents from "@/hooks/useEventActions";
-import useFetchUserEvents from "@/hooks/useFetchUserEvents";
 import useFetchUsers from "@/hooks/useFetchUsers";
+import useUserEventsAction from "@/hooks/useUserEventsAction";
 import { IEvent, IUserEvent } from "@/types";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -21,7 +21,7 @@ function EventUsers({
     nonAdmin: true,
   });
   const { errorMessage, isMounted, events } = useFetchEvents();
-  const { eventUsers } = useFetchUserEvents({
+  const { eventUsers } = useUserEventsAction({
     eventId: event_id,
   });
   const [usersEvent, setUsersEvent] = useState<IUserEvent[]>(eventUsers);

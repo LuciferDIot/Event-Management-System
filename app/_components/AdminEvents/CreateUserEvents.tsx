@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useFetchUserEvents from "@/hooks/useFetchUserEvents";
+import useUserEventsAction from "@/hooks/useUserEventsAction";
 import { IEvent, IUser, IUserEvent } from "@/types";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -29,7 +29,7 @@ type Props = {
 
 function CreateUserEvents({ event, users, updateTable }: Props) {
   const { addUserEvent, deleteUserEvent, errorMessage, isMounted, eventUsers } =
-    useFetchUserEvents({
+    useUserEventsAction({
       eventId: event._id,
     });
 
