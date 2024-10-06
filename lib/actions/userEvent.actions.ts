@@ -9,6 +9,7 @@ import {
   UserRole,
 } from "@/types";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import { connectToDatabase } from "../database";
 import Category from "../database/models/category.model";
 import Event from "../database/models/event.model";
@@ -310,10 +311,9 @@ export const getUserEventById = async (
   }
 };
 
-// Get user events by categoryId (with pagination and protected)
 export const getUserEventsByCategoryId = async (
   categoryId: string,
-  token: string, // Expect the JWT token to be passed
+  token: string,
   page: number = 1,
   limit: number = 10
 ): Promise<IResponse<IUserEvent[] | string | jwt.JwtPayload>> => {
@@ -321,6 +321,7 @@ export const getUserEventsByCategoryId = async (
     UserRole.User,
     UserRole.Admin,
   ]);
+
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse; // Return unauthorized if token is invalid
   }
@@ -328,34 +329,37 @@ export const getUserEventsByCategoryId = async (
   try {
     await connectToDatabase();
 
+    const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
+
     // Fetch user events filtered by categoryId with pagination
     const userEvents: IUserEvent[] = await UserEvent.find({
-      "event.category": categoryId,
+      event: {
+        $in: await Event.find({ category: categoryObjectId }).distinct("_id"),
+      },
     })
       .populate({
         path: "event",
         populate: [
-          { path: "organizer", select: "-password", model: User }, // Fetch organizer details without password
-          { path: "category", model: Category }, // Fetch category details
+          { path: "organizer", select: "-password" }, // Populate organizer without password
+          { path: "category" }, // Populate category
         ],
-        model: Event,
       })
-      .skip((page - 1) * limit) // Skip documents for pagination
-      .limit(limit) // Limit the number of documents fetched
-      .exec();
+      .skip((page - 1) * limit)
+      .limit(limit);
 
-    // Count total documents matching the query
-    const totalCount = await UserEvent.countDocuments({
-      "event.category": categoryId,
-    });
+    console.log(userEvents);
 
     if (!userEvents.length) {
       return {
-        status: ResponseStatus.Error,
+        status: ResponseStatus.Success,
         message: "No user events found for the specified category",
-        code: 404,
+        code: 200,
       };
     }
+
+    const totalCount = await UserEvent.countDocuments({
+      "event.category": categoryObjectId,
+    });
 
     const totalPages = Math.ceil(totalCount / limit); // Calculate total pages
 
@@ -369,6 +373,7 @@ export const getUserEventsByCategoryId = async (
       currentPage: page,
     };
   } catch (error) {
+    console.error("Error fetching user events:", error);
     const serverError = handleServerError(error);
     if (serverError) return serverError;
     return handleError(error);

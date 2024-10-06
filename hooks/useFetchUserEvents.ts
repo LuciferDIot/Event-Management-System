@@ -114,7 +114,6 @@ const useFetchUserEvents = ({
 
     try {
       const response = await getUserEventById(userEventId, token);
-      console.log("API response:", response); // Log the response to inspect
 
       // Ensure response is defined and has the expected properties
       if (response && response.status === ResponseStatus.Success) {
@@ -202,12 +201,14 @@ const useFetchUserEvents = ({
     }
 
     try {
+      console.log("response");
       const response = await getUserEventsByCategoryId(
         categoryId,
         token,
         page,
         limit
       );
+      console.log(response);
 
       if (response.status === ResponseStatus.Success) {
         if (response.field && Array.isArray(response.field)) {

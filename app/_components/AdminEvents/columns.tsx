@@ -37,6 +37,61 @@ export const eventColumns: ColumnDef<IEvent>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => (
+      <span className="w-full min-w-[300px] h-full flex-center ">
+        {row.original.description && row.original.description.length > 200
+          ? row.original.description.slice(0, 100)
+          : row.original.description}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "price",
+    header: ({ column }) => {
+      return (
+        <Button
+          size={"sm"}
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Price
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const isFree = row.original.isFree;
+
+      return (
+        <div className="w-full h-full flex-center">
+          {isFree ? (
+            <span
+              className={`px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800`}
+            >
+              Free
+            </span>
+          ) : (
+            formatPrice(row.original.price)
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "category",
+    header: ({ column }) => {
+      return (
+        <Button
+          size={"sm"}
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Category
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <CategoryBadge category={row.original.category} />,
   },
   {
     accessorKey: "slots",
@@ -117,54 +172,6 @@ export const eventColumns: ColumnDef<IEvent>[] = [
         }
       </span>
     ),
-  },
-  {
-    accessorKey: "price",
-    header: ({ column }) => {
-      return (
-        <Button
-          size={"sm"}
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Price
-          <ArrowUpDown className="ml-2 h-3 w-3" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const isFree = row.original.isFree;
-
-      return (
-        <div className="w-full h-full flex-center">
-          {isFree ? (
-            <span
-              className={`px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800`}
-            >
-              Free
-            </span>
-          ) : (
-            formatPrice(row.original.price)
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "category",
-    header: ({ column }) => {
-      return (
-        <Button
-          size={"sm"}
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Category
-          <ArrowUpDown className="ml-2 h-3 w-3" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <CategoryBadge category={row.original.category} />,
   },
   {
     accessorKey: "organizer",

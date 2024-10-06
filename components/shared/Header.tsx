@@ -14,12 +14,14 @@ export default function Header() {
     <div className="flex-center sticky top-0 shadow-md backdrop-blur-lg z-30 w-full h-[100px] ">
       <div className="w-full h-full max-w-screen-xl px-[4%] flex justify-between items-center">
         <div>
-          <Image
-            src="/images/logo.svg"
-            alt="Event Sync"
-            width={120}
-            height={24}
-          />
+          <Link href={ROUTES.EVENTS}>
+            <Image
+              src="/images/logo.svg"
+              alt="Event Sync"
+              width={120}
+              height={24}
+            />
+          </Link>
         </div>
         <div>
           <ol className="flex gap-6 items-center">

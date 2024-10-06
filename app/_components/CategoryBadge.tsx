@@ -30,7 +30,7 @@ function CategoryBadge({ category }: Props) {
 
   return (
     <Badge
-      className={`text-xs px-3 py-1 rounded-md font-normal ${categoryColorClass}`}
+      className={`text-xs px-3 py-1 rounded-md font-normal w-fit ${categoryColorClass}`}
     >
       {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
     </Badge>

@@ -38,7 +38,15 @@ export const useAuth = () => {
       checkSession();
       setIsLoggedIn(isLoggedInFunc());
     }
-  }, [hasHydrated, expiresAt, user, token]); // Add user and token to dependencies
+  }, [hasHydrated, expiresAt, user, token]);
 
-  return { login, logout, user, token, isLoggedIn, hasHydrated }; // Return hasHydrated
+  // Ensure we only return values once hydration has completed
+  return {
+    login,
+    logout,
+    user: hasHydrated ? user : null,
+    token: hasHydrated ? token : null,
+    isLoggedIn: hasHydrated ? isLoggedIn : false,
+    hasHydrated,
+  };
 };

@@ -24,15 +24,18 @@ const Card = ({ userEvent: { event, _id }, hidePrice }: CardProps) => {
         className="flex-center flex-grow bg-gray-50 bg-cover bg-center text-grey-500"
       />
 
-      <div className="flex min-h-[150px] flex-col gap-3 p-5 md:gap-4">
+      <div className="flex min-h-[150px] flex-col p-5">
         <Link href={ROUTES.VIEW_EVENT + "/" + _id}>
-          <h1 className="font-bold line-clamp-2 flex-1 text-black hover:underline transition-none">
-            {event.title.toUpperCase()}
+          <h1
+            className="font-bold line-clamp-2 flex-1 text-black 
+          hover:underline transition-none"
+          >
+            {event.title?.toUpperCase()}
           </h1>
         </Link>
 
         {!hidePrice && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-3">
             <Badge
               variant={event.isFree ? "secondary" : "destructive"}
               className={cn(
@@ -52,10 +55,10 @@ const Card = ({ userEvent: { event, _id }, hidePrice }: CardProps) => {
           <p>
             Organized by{" "}
             <span className="font-bold">
-              {event.organizer.firstName.charAt(0).toUpperCase() +
-                event.organizer.firstName.slice(1)}{" "}
-              {event.organizer.lastName.charAt(0).toUpperCase() +
-                event.organizer.lastName.slice(1)}
+              {event.organizer?.firstName.charAt(0).toUpperCase() +
+                event.organizer?.firstName.slice(1)}{" "}
+              {event.organizer?.lastName.charAt(0).toUpperCase() +
+                event.organizer?.lastName.slice(1)}
             </span>
           </p>
 

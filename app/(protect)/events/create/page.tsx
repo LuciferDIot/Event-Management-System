@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { ROUTES } from "@/data";
 import { useAuth } from "@/hooks/useAuth";
 import useFetchCategories from "@/hooks/useFetchCategories";
@@ -159,7 +160,7 @@ export default function CreateEventForm() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       placeholder="Enter description (optional)"
                       {...field}
                     />

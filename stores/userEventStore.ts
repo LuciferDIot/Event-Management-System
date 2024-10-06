@@ -17,7 +17,7 @@ export const useUserEventStore = create<UserEventStore>()(
       userEvents: [],
       setUserEvents: (events) => set({ userEvents: events }),
       categoryUserEvents: [],
-      setCategoryUserEvents: (events) => set({ userEvents: events }),
+      setCategoryUserEvents: (events) => set({ categoryUserEvents: events }),
       hasHydrated: false, // Initialize the hydration flag
     }),
     {
