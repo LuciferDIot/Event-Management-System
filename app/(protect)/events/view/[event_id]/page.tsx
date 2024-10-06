@@ -1,6 +1,7 @@
 "use client";
 
 import CategoryBadge from "@/app/_components/CategoryBadge";
+import ChangeUserEvent from "@/app/_components/ChangeUserEvent";
 import Collection from "@/components/shared/Collection";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { ROUTES } from "@/data";
 import { useAuth } from "@/hooks/useAuth";
-import useFetchUserEvents from "@/hooks/useFetchUserEvents";
+import useUserEventsAction from "@/hooks/useUserEventsAction";
 import { cn, formatDateTime, handleError } from "@/lib/utils";
 import { Link1Icon } from "@radix-ui/react-icons";
 import { CalendarRange, LocateFixedIcon, Ticket } from "lucide-react";
@@ -35,7 +36,7 @@ function Page({ params: { event_id } }: { params: { event_id: string } }) {
     categoryUserEvents,
     fetchUserEventsByCategoryId,
     totalPages,
-  } = useFetchUserEvents({
+  } = useUserEventsAction({
     userId: user?._id,
   });
 
@@ -70,7 +71,11 @@ function Page({ params: { event_id } }: { params: { event_id: string } }) {
   }, [specificUserEvent]);
 
   if (!hasHydrated || !specificUserEvent) {
-    return <div className="text-center mt-12">Loading...</div>; // Wait until hydrated
+    return (
+      <div className="w-full h-full flex-center text-center mt-12">
+        Loading...
+      </div>
+    ); // Wait until hydrated
   }
 
   const handlePageChange = (page: number) => {
@@ -82,10 +87,17 @@ function Page({ params: { event_id } }: { params: { event_id: string } }) {
     <div className="w-full min-h-screen py-16">
       <Card className="mx-auto max-w-7xl bg-white shadow-lg p-6 md:p-10">
         <CardHeader className="mb-6 py-0">
-          <CardTitle className="md:text-3xl text-2xl font-bold text-gray-800">
-            {specificUserEvent.event.title}
-          </CardTitle>
-          <div className="flex gap-4 items-center flex-wrap mt-4">
+          <div className="w-full flex justify-between flex-wrap gap-4">
+            <CardTitle className="md:text-3xl text-2xl font-bold text-gray-800">
+              {specificUserEvent.event.title}
+            </CardTitle>
+            <ChangeUserEvent
+              userEventId={specificUserEvent._id}
+              status={specificUserEvent.status}
+              startDate={specificUserEvent.event.startDateTime}
+            />
+          </div>
+          <div className="flex gap-4 items-center flex-wrap mt-2">
             <Badge
               variant={
                 specificUserEvent.event.isFree ? "secondary" : "destructive"

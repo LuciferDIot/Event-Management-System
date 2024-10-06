@@ -26,7 +26,6 @@ export const createEvent = async (
   if (tokenResponse.status === ResponseStatus.Error) {
     return tokenResponse;
   }
-  console.log(eventData);
 
   try {
     const parsedData = eventSchema.parse(eventData);

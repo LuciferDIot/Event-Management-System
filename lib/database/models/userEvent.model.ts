@@ -1,4 +1,4 @@
-import { IUserEvent } from "@/types";
+import { IUserEvent, UserEventStatus } from "@/types";
 import { Model, Schema, model, models } from "mongoose";
 
 const UserEventSchema = new Schema<IUserEvent>(
@@ -7,8 +7,8 @@ const UserEventSchema = new Schema<IUserEvent>(
     event: { type: Schema.Types.ObjectId, ref: "Event", required: true },
     status: {
       type: String,
-      enum: ["Pending", "Completed", "Overdue"],
-      default: "Pending",
+      enum: Object.values(UserEventStatus),
+      default: UserEventStatus.Pending,
     }, // Tracking the status of the user's participation
   },
   { timestamps: true }

@@ -122,7 +122,6 @@ export default function CreateEventForm() {
       toast.error("An error occurred during event creation");
     }
   }
-  console.log(errors);
 
   // Watch the isFree checkbox value
   const isFree = watch("isFree");

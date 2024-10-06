@@ -39,7 +39,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
-        <ToastContainer />
+        <ToastContainer position="bottom-center" />
       </body>
     </html>
   );

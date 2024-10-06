@@ -1,5 +1,5 @@
 import Collection from "@/components/shared/Collection";
-import useFetchUserEvents from "@/hooks/useFetchUserEvents";
+import useUserEventsAction from "@/hooks/useUserEventsAction";
 import { IUser } from "@/types";
 import { useState } from "react";
 
@@ -10,7 +10,7 @@ type Props = {
 
 function UserEvents({ user }: Props) {
   const [page, setPage] = useState(1); // State to track current page
-  const { userEvents, totalPages } = useFetchUserEvents({
+  const { userEvents, totalPages } = useUserEventsAction({
     userId: user._id,
     page,
   });
@@ -25,10 +25,6 @@ function UserEvents({ user }: Props) {
         id="events"
         className="wrapper my-8 flex flex-col gap-8 md:gap-12"
       >
-        <h2 className="h2-bold">
-          Trust by <br /> Thousands of Events
-        </h2>
-
         <Collection
           data={userEvents}
           emptyTitle="No Events Found"

@@ -1,4 +1,3 @@
-// src/hooks/useFetchUserEvents.ts
 import { useAuth } from "@/hooks/useAuth";
 import {
   createUserEvent,
@@ -7,13 +6,14 @@ import {
   getUserEvents,
   getUserEventsByCategoryId,
   removeUserEvent,
+  updateUserEventStatus,
 } from "@/lib/actions/userEvent.actions";
 import { handleError } from "@/lib/utils";
 import { useUserEventStore } from "@/stores/userEventStore";
-import { IUserEvent, ResponseStatus } from "@/types";
+import { IUserEvent, ResponseStatus, UserEventStatus } from "@/types";
 import { useEffect, useState } from "react";
 
-const useFetchUserEvents = ({
+const useUserEventsAction = ({
   eventId,
   userId,
   page = 1, // Default page set to 1
@@ -190,6 +190,39 @@ const useFetchUserEvents = ({
     }
   };
 
+  // New function to update the userEvent status
+  const updateUserEventStatusAction = async (
+    userEventId: string,
+    newStatus: UserEventStatus
+  ) => {
+    setErrorMessage(null);
+    if (!token) {
+      setErrorMessage("Token is undefined.");
+      return;
+    }
+
+    try {
+      const response = await updateUserEventStatus(
+        userEventId,
+        newStatus,
+        token
+      );
+
+      if (response.status === ResponseStatus.Success) {
+        await fetchUserEventById(userEventId);
+      } else {
+        setErrorMessage(response.message);
+      }
+    } catch (error) {
+      const errorRecreate = handleError(error);
+      console.error(error);
+      setErrorMessage(
+        errorRecreate.message ||
+          "An error occurred while updating user event status."
+      );
+    }
+  };
+
   const fetchUserEventsByCategoryId = async (
     categoryId: string,
     userEventId: string,
@@ -215,7 +248,6 @@ const useFetchUserEvents = ({
         page,
         limit
       );
-      console.log(response);
 
       if (response.status === ResponseStatus.Success) {
         if (response.field && Array.isArray(response.field)) {
@@ -261,9 +293,10 @@ const useFetchUserEvents = ({
     fetchUserEventById,
     addUserEvent,
     deleteUserEvent,
+    updateUserEventStatusAction,
     fetchUserEventsByCategoryId,
     totalPages,
   };
 };
 
-export default useFetchUserEvents;
+export default useUserEventsAction;
