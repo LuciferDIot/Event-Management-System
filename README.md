@@ -23,6 +23,10 @@ A simple event management application built with Next.js and MongoDB, designed f
 - Database: MongoDB
 - Authentication: Custom session management
 
+## Live Demo
+
+👉 [https://event-management-system-lemon.vercel.app/](https://event-management-system-lemon.vercel.app/)
+
 ## Login Credentials
 
 ### Admin Account
@@ -34,6 +38,20 @@ A simple event management application built with Next.js and MongoDB, designed f
 - **Password:** User1234
 
 *Note: You can create additional users through the admin panel.*
+
+## Screenshots
+
+### 1. Admin User Management
+![Admin User Management](https://github.com/user-attachments/assets/543edf13-e32e-4e8f-ae20-dcda4be98cf3)
+*Admin interface for managing users and their statuses*
+
+### 2. User Dashboard (Logged In)
+![User Dashboard](https://github.com/user-attachments/assets/104732d0-c67c-49f5-90aa-628e98b16398) 
+*User view showing assigned events and status*
+
+### 3. Landing Page (Before Login)
+![Landing Page](https://github.com/user-attachments/assets/2f1dcc5f-e08a-4cd8-b252-1bfa07940595)
+*Public landing page before authentication*
 
 ## Installation
 
@@ -101,10 +119,6 @@ A simple event management application built with Next.js and MongoDB, designed f
 - `POST /api/events` - Create new event (admin only)
 - `PUT /api/events/:id` - Update event status
 
-## Screenshots
-
-(Add your application screenshots here)
-
 ## Future Improvements
 
 - Add email notifications for overdue events
@@ -117,15 +131,15 @@ A simple event management application built with Next.js and MongoDB, designed f
 MIT License
 ```
 
-### Key Changes Made:
-1. Updated admin credentials to:
-   - Username: `Admin`
-   - Password: `Admin1234`
+### Key Changes:
+1. Added a dedicated **Screenshots** section after login credentials
+2. Included all three images with descriptive captions
+3. Used proper Markdown syntax for image embedding (`![Alt Text](filename)`)
+4. Maintained all existing content and structure
+5. Added brief descriptions of what each screenshot demonstrates
 
-2. Updated user credentials to:
-   - Username: `User`
-   - Password: `User1234`
-
-3. Maintained all other functionality and structure from the original README
-
-This file is ready to copy-paste into your `README.md`. The Markdown formatting will work perfectly on GitHub or any other Markdown viewer.
+### Note:
+For the images to display properly:
+1. Make sure the image files (`User Management as admin.jpeg`, `Home Logged as User.jpeg`, `Home before login.jpeg`) are placed in your project's repository
+2. The image paths in the Markdown should match their actual location (I've assumed they're in the root directory - adjust paths if needed)
+3. On GitHub, you can also drag-and-drop images directly into the README editor to automatically upload them
