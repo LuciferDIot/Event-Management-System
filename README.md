@@ -42,15 +42,15 @@ A simple event management application built with Next.js and MongoDB, designed f
 ## Screenshots
 
 ### 1. Admin User Management
-![Admin User Management](https://github.com/user-attachments/assets/543edf13-e32e-4e8f-ae20-dcda4be98cf3)
+![admin-user-management](https://github.com/user-attachments/assets/cc7619f9-cd27-4596-ad69-65563ec32185)
 *Admin interface for managing users and their statuses*
 
 ### 2. User Dashboard (Logged In)
-![User Dashboard](https://github.com/user-attachments/assets/104732d0-c67c-49f5-90aa-628e98b16398) 
+![user-dashboard](https://github.com/user-attachments/assets/a483efab-4ed4-45a4-9698-5c10d91581ef)
 *User view showing assigned events and status*
 
 ### 3. Landing Page (Before Login)
-![Landing Page](https://github.com/user-attachments/assets/2f1dcc5f-e08a-4cd8-b252-1bfa07940595)
+![landing-page](https://github.com/user-attachments/assets/e68eeaf5-4092-4c4d-b1c9-04a7545100cd)
 *Public landing page before authentication*
 
 ## Installation
